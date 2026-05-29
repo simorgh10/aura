@@ -1,0 +1,161 @@
+<div class="h-screen w-screen flex flex-col overflow-hidden bg-[#060a13] font-sans text-slate-100 select-none relative">
+  
+  <!-- Main Grid Layout: Top Header + Main View -->
+  <header class="h-16 shrink-0 bg-slate-950/40 backdrop-blur-md border-b border-slate-200/5 px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.45)]">
+        <span class="font-black text-sm tracking-tight text-white font-title">A</span>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold tracking-wider uppercase font-title flex items-center gap-1.5 leading-none text-slate-100">
+          AURA <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+        </h1>
+        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-0.5 block">
+          Multi-Layer Architecture Canvas
+        </span>
+      </div>
+    </div>
+
+    <!-- Active environment variables badge display -->
+    @if (store.activeProfile()) {
+      <div class="hidden md:flex items-center gap-2 select-none">
+        <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+          Active Environment Specs:
+        </div>
+        <div class="flex items-center gap-1.5 bg-slate-900/50 border border-slate-800 rounded-lg px-2.5 py-1 text-[10px] font-mono text-slate-400">
+          <span class="text-cyan-400 font-bold">K8s Cluster:</span>
+          <span>{{ store.activeProfile()?.props?.['k8s_cluster'] }}</span>
+        </div>
+        <div class="flex items-center gap-1.5 bg-slate-900/50 border border-slate-800 rounded-lg px-2.5 py-1 text-[10px] font-mono text-slate-400">
+          <span class="text-emerald-400 font-bold">DB Host:</span>
+          <span>{{ store.activeProfile()?.props?.['db_host'] || 'external-gateway' }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- External Links -->
+    <div class="flex items-center gap-3 select-none">
+      <div class="text-[10px] font-bold text-slate-500 bg-slate-900/40 border border-slate-800/80 px-2 py-1 rounded-md uppercase tracking-widest">
+        v2026.1
+      </div>
+    </div>
+  </header>
+
+  <div class="flex-1 flex relative overflow-hidden select-none">
+    <!-- Sidebar Control Overlay Panels (Float left/right) -->
+
+    <!-- Floating toggle button for left panel -->
+    <button 
+      (click)="leftSidebarExpanded.set(!leftSidebarExpanded())"
+      [ngClass]="leftSidebarExpanded() ? 'left-[292px]' : 'left-6'"
+      class="absolute top-6 z-40 p-2.5 rounded-xl glass-panel border border-slate-200/10 text-slate-300 hover:text-slate-100 hover:bg-slate-800/60 transition-all duration-300 shadow-xl"
+      [title]="leftSidebarExpanded() ? 'Collapse Menu' : 'Expand Menu'"
+    >
+      <app-icon [name]="leftSidebarExpanded() ? 'chevron-left' : 'menu'" [size]="16"></app-icon>
+    </button>
+
+    <!-- Left Controls Panel (Layer visibility & settings) -->
+    <aside 
+      [ngClass]="leftSidebarExpanded() ? 'translate-x-0 opacity-100 pointer-events-auto' : '-translate-x-[calc(100%+24px)] opacity-0 pointer-events-none'"
+      class="absolute top-6 left-6 z-30 w-64 glass-panel border border-slate-200/5 rounded-2xl p-4 flex flex-col gap-5 select-none transition-all duration-300 ease-in-out shadow-2xl"
+    >
+      
+      <!-- Hierarchy Perspective Picker -->
+      <div class="flex flex-col gap-2">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+          Perspective Views
+        </div>
+        <div class="flex flex-col gap-1.5">
+          @for (h of store.manifest()?.hierarchies; track h.id) {
+            <button
+              (click)="store.setActiveHierarchy(h.id)"
+              [ngClass]="store.activeHierarchyId() === h.id ? 'bg-blue-600/15 border-blue-500/35 text-blue-300 shadow-[inset_0_0_12px_rgba(59,130,246,0.1)]' : 'bg-slate-900/35 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'"
+              class="w-full text-left px-3.5 py-2.5 rounded-xl border font-sans text-xs font-semibold tracking-wide transition-all duration-200 flex items-center justify-between"
+            >
+              <span>{{ h.name }}</span>
+              @if (store.activeHierarchyId() === h.id) {
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_#3b82f6]"></span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <hr class="border-slate-800/60">
+
+      <!-- Profile Context Picker -->
+      @if (store.activeHierarchy()?.profiles && store.activeHierarchy()!.profiles!.length > 0) {
+        <div class="flex flex-col gap-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+            Active Environment Profile
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            @for (p of store.activeHierarchy()?.profiles; track p.id) {
+              <button
+                (click)="store.setActiveProfile(p.id)"
+                [ngClass]="store.activeProfileId() === p.id ? 'bg-cyan-600/15 border-cyan-500/35 text-cyan-300 shadow-[inset_0_0_12px_rgba(6,182,212,0.1)]' : 'bg-slate-900/35 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'"
+                class="px-2.5 py-2 rounded-xl border font-sans text-[11px] font-bold tracking-wider uppercase transition-all duration-200 text-center"
+              >
+                {{ p.id }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <hr class="border-slate-800/60">
+      }
+
+      <!-- Architectural Layers visibility control -->
+      <div class="flex flex-col gap-2.5">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+          Component Layers
+        </div>
+        <div class="flex flex-col gap-1.5">
+          @for (layer of layers(); track layer) {
+            <div class="flex items-center justify-between bg-slate-900/25 border border-slate-800/40 rounded-xl px-3 py-2 text-xs">
+              <div class="flex items-center gap-2 select-none">
+                <span 
+                  [ngClass]="{
+                    'bg-blue-500/20 text-blue-400': layer === 'domain',
+                    'bg-cyan-500/20 text-cyan-400': layer === 'microservice',
+                    'bg-emerald-500/20 text-emerald-400': layer === 'database',
+                    'bg-purple-500/20 text-purple-400': layer === 'subnet',
+                    'bg-amber-500/20 text-amber-400': layer === 'bucket',
+                    'bg-pink-500/20 text-pink-400': layer === 'gateway'
+                  }"
+                  class="w-2.5 h-2.5 rounded-full"
+                ></span>
+                <span class="capitalize text-slate-300 font-medium font-sans select-none">{{ layer }}</span>
+              </div>
+              <button 
+                (click)="store.toggleLayerVisibility(layer)"
+                [ngClass]="store.hiddenLayers().includes(layer) ? 'text-slate-600 hover:text-slate-400' : 'text-cyan-400 hover:text-cyan-300'"
+                class="p-1 rounded transition-colors"
+                [title]="store.hiddenLayers().includes(layer) ? 'Show Layer' : 'Hide Layer'"
+              >
+                <app-icon 
+                  [name]="store.hiddenLayers().includes(layer) ? 'eye-off' : 'eye'" 
+                  [size]="14"
+                ></app-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Canvas Workspace -->
+    <main class="flex-1 h-full relative z-10 select-none">
+      @if (store.loading()) {
+        <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-[#060a13]">
+          <div class="w-12 h-12 rounded-full border-4 border-slate-800 border-t-blue-500 animate-spin"></div>
+          <span class="text-sm font-semibold tracking-wider uppercase text-slate-400">Loading Topology Graph...</span>
+        </div>
+      }
+      <app-canvas></app-canvas>
+    </main>
+
+    <!-- Right Sliding Pane (Documentation Panel) -->
+    <app-sidebar class="z-40"></app-sidebar>
+  </div>
+</div>

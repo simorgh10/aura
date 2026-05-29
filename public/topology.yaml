@@ -1,0 +1,156 @@
+version: "2026.1"
+
+types:
+  components:
+    domain:
+      icon: "layout"
+      css: { "border-color": "var(--color-domain)", "background-color": "rgba(59, 130, 246, 0.05)" }
+    microservice:
+      icon: "cpu"
+      css: { "border-color": "var(--color-microservice)", "background-color": "rgba(6, 182, 212, 0.05)" }
+    database:
+      icon: "database"
+      css: { "border-color": "var(--color-database)", "background-color": "rgba(16, 185, 129, 0.05)" }
+    bucket:
+      icon: "archive"
+      css: { "border-color": "var(--color-bucket)", "background-color": "rgba(245, 158, 11, 0.05)" }
+    gateway:
+      icon: "globe"
+      css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.05)" }
+  edges:
+    async:
+      css: { "stroke": "var(--color-microservice)", "stroke-width": "2", "stroke-dasharray": "6,6", "animation": "flow-dash 1.5s linear infinite" }
+    sync:
+      css: { "stroke": "var(--color-domain)", "stroke-width": "2.5" }
+    db_flow:
+      css: { "stroke": "var(--color-database)", "stroke-width": "2", "stroke-dasharray": "4,4", "animation": "flow-dash 0.8s linear infinite" }
+
+hierarchies:
+  - id: "functional"
+    name: "Functional Architecture"
+    default_profile: "prod"
+    layers: ["domain", "microservice", "database", "bucket", "gateway"]
+    profiles:
+      - id: "prod"
+        props:
+          env: "PRODUCTION"
+          k8s_cluster: "us-east-1-main"
+          gitlab_base: "https://gitlab.com/enterprise/prod"
+          db_host: "prod-aurora-cluster.internal"
+          bucket_name: "prod-assets-us-east-1"
+      - id: "staging"
+        props:
+          env: "STAGING"
+          k8s_cluster: "us-west-2-stage"
+          gitlab_base: "https://gitlab.com/enterprise/staging"
+          db_host: "staging-db.internal"
+          bucket_name: "staging-assets-us-west-2"
+    tree:
+      - id: "ordering-domain"
+        type: "domain"
+        children: ["order-api", "order-db"]
+      - id: "payment-domain"
+        type: "domain"
+        children: ["payment-gateway", "payment-db"]
+      - id: "shipping-domain"
+        type: "domain"
+        children: ["shipping-worker", "shipping-bucket"]
+  - id: "network"
+    name: "Infrastructure Networks"
+    default_profile: "dev"
+    layers: ["domain", "microservice", "database", "gateway"]
+    profiles:
+      - id: "dev"
+        props:
+          env: "DEVELOPMENT"
+          k8s_cluster: "local-minikube-dev"
+          gitlab_base: "https://gitlab.com/enterprise/dev"
+          db_host: "dev-db.internal"
+    tree:
+      - id: "ordering-domain"
+        type: "domain"
+        children: ["order-api"]
+      - id: "payment-domain"
+        type: "domain"
+        children: ["payment-gateway"]
+
+components:
+  - id: "ordering-domain"
+    type: "domain"
+    name: "Ordering Subsystem - ${env}"
+    docs: "/docs/ordering-domain.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/ordering" }
+    ports: ["in", "out"]
+
+  - id: "order-api"
+    type: "microservice"
+    name: "Order API Service (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/order-api" }
+      - { type: "confluence", url: "https://wiki.enterprise.com/order-api-design" }
+    ports: ["in", "out", "db"]
+
+  - id: "order-db"
+    type: "database"
+    name: "Order DB (${db_host})"
+    docs: "/docs/order-db.md"
+    ports: ["in"]
+
+  - id: "payment-domain"
+    type: "domain"
+    name: "Payment Gateway System - ${env}"
+    docs: "/docs/payment-domain.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/payment-gateway" }
+    ports: ["in", "out"]
+
+  - id: "payment-gateway"
+    type: "gateway"
+    name: "Stripe Integrator Core"
+    docs: "/docs/payment-gateway.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/stripe-integrator" }
+    ports: ["in", "out", "db"]
+
+  - id: "payment-db"
+    type: "database"
+    name: "Transactions DB"
+    docs: "/docs/payment-db.md"
+    ports: ["in"]
+
+  - id: "shipping-domain"
+    type: "domain"
+    name: "Fulfillment Subsystem"
+    docs: "/docs/shipping-domain.md"
+    ports: ["in", "out"]
+
+  - id: "shipping-worker"
+    type: "microservice"
+    name: "Shipping Coordinator Worker"
+    docs: "/docs/shipping-worker.md"
+    ports: ["in", "out"]
+
+  - id: "shipping-bucket"
+    type: "bucket"
+    name: "S3 Manifest Storage (${bucket_name})"
+    docs: "/docs/shipping-bucket.md"
+    ports: ["in"]
+
+edges:
+  - from: "order-api:out"
+    to: "payment-gateway:in"
+    type: "sync"
+  - from: "order-api:db"
+    to: "order-db:in"
+    type: "db_flow"
+  - from: "payment-gateway:db"
+    to: "payment-db:in"
+    type: "db_flow"
+  - from: "order-api:out"
+    to: "shipping-worker:in"
+    type: "async"
+  - from: "shipping-worker:out"
+    to: "shipping-bucket:in"
+    type: "async"

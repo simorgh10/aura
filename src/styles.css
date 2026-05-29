@@ -1,0 +1,138 @@
+@import 'tailwindcss';
+
+/* Custom Theme Variables & Styles */
+:root {
+  --font-title: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Harmonious Dark Palette */
+  --bg-canvas: #060a13;
+  --bg-panel: rgba(10, 18, 36, 0.75);
+  --bg-card: #0d1527;
+  --bg-card-hover: #14203a;
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --border-glass-active: rgba(59, 130, 246, 0.3);
+
+  /* Vivid Architectural Type Colors */
+  --color-domain: #3b82f6;       /* Blue */
+  --color-microservice: #06b6d4; /* Cyan */
+  --color-database: #10b981;     /* Emerald */
+  --color-subnet: #8b5cf6;       /* Purple */
+  --color-bucket: #f59e0b;       /* Amber */
+  --color-gateway: #ec4899;      /* Pink */
+
+  /* Utility glows */
+  --glow-blue: 0 0 20px rgba(59, 130, 246, 0.25);
+  --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.25);
+  --glow-emerald: 0 0 20px rgba(16, 185, 129, 0.25);
+}
+
+/* Base resets & typography */
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-canvas);
+  color: #f1f5f9;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  letter-spacing: -0.02em;
+}
+
+/* Glassmorphism utility classes */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card {
+  background: rgba(13, 21, 39, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-glass);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: rgba(20, 32, 58, 0.85);
+  border-color: var(--border-glass-active);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), var(--glow-blue);
+  transform: translateY(-2px);
+}
+
+/* Canvas Grid Background */
+.canvas-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1.5px, transparent 1.5px);
+  background-size: 30px 30px;
+}
+
+/* Edge dash & pulse animations */
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 2px rgba(59, 130, 246, 0.3));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+  }
+}
+
+.edge-flow {
+  animation: flow-dash 1s linear infinite;
+}
+
+.edge-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Port connections styling */
+.port-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2px solid var(--color-microservice);
+  transition: all 0.2s ease;
+}
+
+.port-dot:hover {
+  transform: scale(1.4);
+  background: var(--color-microservice);
+  box-shadow: 0 0 8px var(--color-microservice);
+  cursor: crosshair;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 18, 36, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Lateral Drawer Animation */
+.drawer-transition {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
