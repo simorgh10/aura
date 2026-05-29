@@ -147,15 +147,17 @@ export const TopologyStore = signalStore(
       });
 
       // 2. Recursive visibility propagation
-      const resolveVisibility = (nodeId: string, isParentVisibleAndExpanded: boolean) => {
+      // 2. Recursive visibility propagation
+      const resolveVisibility = (nodeId: string, isParentExpanded: boolean) => {
         const node = nodeMap[nodeId];
         if (!node) return;
 
         const isLayerVisible = layerSet.has(node.type) && !hiddenLayers.includes(node.type);
-        node.isVisible = isLayerVisible && isParentVisibleAndExpanded;
+        // A node is visible if its layer is visible AND all parent ancestors are expanded
+        node.isVisible = isLayerVisible && isParentExpanded;
 
         node.childrenIds.forEach(cid => {
-          resolveVisibility(cid, node.isVisible && node.isExpanded);
+          resolveVisibility(cid, isParentExpanded && node.isExpanded);
         });
       };
 
@@ -205,14 +207,32 @@ export const TopologyStore = signalStore(
           const offsetKey = `${activeHierarchy.id}:${child.id}`;
           const offset = nodeOffsets[offsetKey] || { x: 0, y: 0 };
 
-          child.x = paddingX + cumulativeWidth + offset.x;
-          child.y = paddingTop + offset.y;
+          // Add padding and cumulative width on top of any child's internal shifts (child.x starts as -shiftX if shifted)
+          child.x += paddingX + cumulativeWidth + offset.x;
+          child.y += paddingTop + offset.y;
 
           cumulativeWidth += width;
           if (index < visibleChildren.length - 1) {
             cumulativeWidth += gap;
           }
         });
+
+        // Resolve top-left overflow shifts (left/up dragging)
+        const currentMinX = visibleChildren.length > 0 ? Math.min(...visibleChildren.map(c => c.x)) : paddingX;
+        const currentMinY = visibleChildren.length > 0 ? Math.min(...visibleChildren.map(c => c.y)) : paddingTop;
+
+        const shiftX = currentMinX < paddingX ? paddingX - currentMinX : 0;
+        const shiftY = currentMinY < paddingTop ? paddingTop - currentMinY : 0;
+
+        if (shiftX > 0 || shiftY > 0) {
+          visibleChildren.forEach(child => {
+            child.x += shiftX;
+            child.y += shiftY;
+          });
+          // Shift parent node relative coordinates so children don't jump in global absolute space
+          node.x -= shiftX;
+          node.y -= shiftY;
+        }
 
         // Calculate parent dimensions based on actual visual bounding box of visible children
         const rightBounds = visibleChildren.map(c => c.x + c.width);
@@ -239,8 +259,9 @@ export const TopologyStore = signalStore(
           const offsetKey = `${activeHierarchy.id}:${node.id}`;
           const offset = nodeOffsets[offsetKey] || { x: 0, y: 0 };
 
-          node.x = currentX + offset.x;
-          node.y = 10 + offset.y;
+          // Add starting layout coordinates on top of any internal container shifts (node.x starts as -shiftX if shifted)
+          node.x += currentX + offset.x;
+          node.y += 10 + offset.y;
           currentX += node.width + rootGap;
         }
       });
@@ -447,14 +468,58 @@ export const TopologyStore = signalStore(
     },
 
     updateNodeOffset(hierarchyId: string, nodeId: string, dx: number, dy: number) {
-      const key = `${hierarchyId}:${nodeId}`;
-      const current = store.nodeOffsets();
-      const existing = current[key] || { x: 0, y: 0 };
-      const next = {
-        ...current,
-        [key]: { x: existing.x + dx, y: existing.y + dy }
+      const nodeMap = store.layoutNodes();
+      const currentOffsets = store.nodeOffsets();
+      const nextOffsets = { ...currentOffsets };
+      const visited = new Set<string>();
+
+      // Ancestor/Descendant checker to avoid relative collision lock
+      const isAncestor = (ancestorId: string, descendantId: string): boolean => {
+        let current = nodeMap[descendantId];
+        while (current && current.parentId) {
+          if (current.parentId === ancestorId) return true;
+          current = nodeMap[current.parentId];
+        }
+        return false;
       };
-      patchState(store, { nodeOffsets: next });
+
+      // Recursive push function
+      const pushNode = (targetId: string, deltaX: number, deltaY: number) => {
+        if (visited.has(targetId)) return;
+        visited.add(targetId);
+
+        const offsetKey = `${hierarchyId}:${targetId}`;
+        const existing = nextOffsets[offsetKey] || { x: 0, y: 0 };
+        nextOffsets[offsetKey] = { x: existing.x + deltaX, y: existing.y + deltaY };
+
+        const targetNode = nodeMap[targetId];
+        if (!targetNode) return;
+
+        // Visual bounding boundaries for collision check (adding delta to target position)
+        const targetNewX = targetNode.x + deltaX;
+        const targetNewY = targetNode.y + deltaY;
+
+        Object.values(nodeMap).forEach(other => {
+          if (other.id === targetId || !other.isVisible || visited.has(other.id)) return;
+
+          // Prevent collision checks between parents and their own children (and vice versa)
+          if (isAncestor(targetId, other.id) || isAncestor(other.id, targetId)) {
+            return;
+          }
+
+          // Check for rectangular intersection
+          const overlapX = Math.min(targetNewX + targetNode.width, other.x + other.width) - Math.max(targetNewX, other.x);
+          const overlapY = Math.min(targetNewY + targetNode.height, other.y + other.height) - Math.max(targetNewY, other.y);
+
+          if (overlapX > 0 && overlapY > 0) {
+            // Push recursive sibling by the exact drag movement deltas
+            pushNode(other.id, deltaX, deltaY);
+          }
+        });
+      };
+
+      pushNode(nodeId, dx, dy);
+      patchState(store, { nodeOffsets: nextOffsets });
     }
   }))
 );

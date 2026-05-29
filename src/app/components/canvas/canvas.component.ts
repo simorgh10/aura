@@ -102,7 +102,20 @@ import { IconComponent } from '../icon/icon.component';
             class="canvas-grid pointer-events-none" 
           />
 
-          <!-- Edges Render Layer -->
+          <!-- 1. Containers Render Layer (drawn first) -->
+          @for (node of containerNodes(); track node.id) {
+            <svg:foreignObject 
+              [attr.x]="node.x" 
+              [attr.y]="node.y" 
+              [attr.width]="node.width" 
+              [attr.height]="node.height"
+              class="overflow-visible transition-all duration-300"
+            >
+              <app-node-box [node]="node"></app-node-box>
+            </svg:foreignObject>
+          }
+
+          <!-- 2. Edges Render Layer (drawn second, on top of container backdrops) -->
           @for (edge of edges(); track edge.fromNodeId + '-' + edge.toNodeId + '-' + edge.fromPort) {
             <path 
               [attr.d]="computePath(edge)" 
@@ -115,8 +128,8 @@ import { IconComponent } from '../icon/icon.component';
             />
           }
 
-          <!-- Components Render Layer -->
-          @for (node of nodes(); track node.id) {
+          <!-- 3. Leaf Components Render Layer (drawn last, on top of edges) -->
+          @for (node of leafNodes(); track node.id) {
             <svg:foreignObject 
               [attr.x]="node.x" 
               [attr.y]="node.y" 
@@ -135,13 +148,19 @@ import { IconComponent } from '../icon/icon.component';
 export class CanvasComponent {
   store = inject(TopologyStore);
 
-  // Layout calculations
-  nodes = computed(() => {
+  // Layout calculations: separate containers (non-leaves) sorted by depth
+  containerNodes = computed(() => {
     const nodeMap = this.store.layoutNodes();
-    // Sort components by depth ascending to guarantee parent containers act as backdrop under nested structures
     return Object.values(nodeMap)
-      .filter((n) => n.isVisible)
+      .filter((n) => n.isVisible && !n.isLeaf)
       .sort((a, b) => a.depth - b.depth);
+  });
+
+  // Layout calculations: separate leaf nodes (components with no children)
+  leafNodes = computed(() => {
+    const nodeMap = this.store.layoutNodes();
+    return Object.values(nodeMap)
+      .filter((n) => n.isVisible && n.isLeaf);
   });
 
   edges = computed(() => this.store.layoutEdges());
