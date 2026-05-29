@@ -193,26 +193,56 @@ export const TopologyStore = signalStore(
         const paddingX = 30;
         const paddingTop = 65;
         const paddingBottom = 25;
-        const gap = 35;
+        const gapX = 35;
+        const gapY = 35;
 
-        // Compute sizes of children recursively
-        let cumulativeWidth = 0;
+        // Group children into 2-column grid rows
+        const maxCols = 2;
+        const rows: UINode[][] = [];
+        for (let i = 0; i < visibleChildren.length; i += maxCols) {
+          rows.push(visibleChildren.slice(i, i + maxCols));
+        }
 
-        visibleChildren.forEach((child, index) => {
-          const { width } = computeNodeSizeAndLayout(child.id);
-          
-          // Place child locally inside parent, adding its drag offset
-          const offsetKey = `${activeHierarchy.id}:${child.id}`;
-          const offset = nodeOffsets[offsetKey] || { x: 0, y: 0 };
+        // Compute sizes of all children recursively first
+        visibleChildren.forEach(child => {
+          computeNodeSizeAndLayout(child.id);
+        });
 
-          // Add padding and cumulative width on top of any child's internal shifts (child.x starts as -shiftX if shifted)
-          child.x += paddingX + cumulativeWidth + offset.x;
-          child.y += paddingTop + offset.y;
+        // Calculate column widths and row heights
+        const maxColWidths: number[] = [];
+        const rowHeights: number[] = [];
 
-          cumulativeWidth += width;
-          if (index < visibleChildren.length - 1) {
-            cumulativeWidth += gap;
+        rows.forEach((row, rowIndex) => {
+          let maxH = 0;
+          row.forEach((child, colIndex) => {
+            maxH = Math.max(maxH, child.height);
+            maxColWidths[colIndex] = Math.max(maxColWidths[colIndex] || 0, child.width);
+          });
+          rowHeights[rowIndex] = maxH;
+        });
+
+        // Position children using the calculated column widths and row heights
+        rows.forEach((row, rowIndex) => {
+          // Sum row heights for k < rowIndex
+          let cumulativeY = 0;
+          for (let k = 0; k < rowIndex; k++) {
+            cumulativeY += rowHeights[k] + gapY;
           }
+
+          row.forEach((child, colIndex) => {
+            // Sum column widths for k < colIndex
+            let cumulativeX = 0;
+            for (let k = 0; k < colIndex; k++) {
+              cumulativeX += maxColWidths[k] + gapX;
+            }
+
+            const offsetKey = `${activeHierarchy.id}:${child.id}`;
+            const offset = nodeOffsets[offsetKey] || { x: 0, y: 0 };
+
+            // Apply initial coordinate additions relative to parent
+            child.x += paddingX + cumulativeX + offset.x;
+            child.y += paddingTop + cumulativeY + offset.y;
+          });
         });
 
         // Resolve top-left overflow shifts (left/up dragging)
@@ -245,29 +275,61 @@ export const TopologyStore = signalStore(
         return { width: node.width, height: node.height };
       };
 
-      // 4. Position top-level root nodes
-      let currentX = 0;
-      const rootGap = 80;
+      // 4. Position top-level root nodes in a 2-column grid
+      const rootMaxCols = 2;
+      const visibleRoots = roots.map(r => nodeMap[r.id]).filter(n => {
+        if (!n) return false;
+        const hasVisibleDescendants = !n.isLeaf && n.isExpanded && n.childrenIds.some(cid => nodeMap[cid]?.isVisible);
+        return n.isVisible || hasVisibleDescendants;
+      });
 
-      roots.forEach(root => {
-        const node = nodeMap[root.id];
-        if (node) {
-          // If the root container itself is hidden and has no visible children, we skip positioning it
-          const hasVisibleDescendants = !node.isLeaf && node.isExpanded && node.childrenIds.some(cid => nodeMap[cid]?.isVisible);
-          if (!node.isVisible && !hasVisibleDescendants) {
-            return;
+      // Position all roots locally to determine their expanded dimensions
+      visibleRoots.forEach(root => {
+        computeNodeSizeAndLayout(root.id);
+      });
+
+      // Group roots into rows of size rootMaxCols
+      const rootRows: UINode[][] = [];
+      for (let i = 0; i < visibleRoots.length; i += rootMaxCols) {
+        rootRows.push(visibleRoots.slice(i, i + rootMaxCols));
+      }
+
+      // Calculate root column widths and row heights
+      const maxRootColWidths: number[] = [];
+      const rootRowHeights: number[] = [];
+
+      rootRows.forEach((row, rowIndex) => {
+        let maxH = 0;
+        row.forEach((root, colIndex) => {
+          maxH = Math.max(maxH, root.height);
+          maxRootColWidths[colIndex] = Math.max(maxRootColWidths[colIndex] || 0, root.width);
+        });
+        rootRowHeights[rowIndex] = maxH;
+      });
+
+      const rootGapX = 80;
+      const rootGapY = 80;
+
+      rootRows.forEach((row, rowIndex) => {
+        // Sum row heights for k < rowIndex
+        let cumulativeY = 0;
+        for (let k = 0; k < rowIndex; k++) {
+          cumulativeY += rootRowHeights[k] + rootGapY;
+        }
+
+        row.forEach((root, colIndex) => {
+          // Sum column widths for k < colIndex
+          let cumulativeX = 0;
+          for (let k = 0; k < colIndex; k++) {
+            cumulativeX += maxRootColWidths[k] + rootGapX;
           }
 
-          computeNodeSizeAndLayout(node.id);
-          
-          const offsetKey = `${activeHierarchy.id}:${node.id}`;
+          const offsetKey = `${activeHierarchy.id}:${root.id}`;
           const offset = nodeOffsets[offsetKey] || { x: 0, y: 0 };
 
-          // Add starting layout coordinates on top of any internal container shifts (node.x starts as -shiftX if shifted)
-          node.x += currentX + offset.x;
-          node.y += 10 + offset.y;
-          currentX += node.width + rootGap;
-        }
+          root.x += cumulativeX + offset.x;
+          root.y += 10 + cumulativeY + offset.y;
+        });
       });
 
       // 4b. Resolve overlaps between top-level roots (Constraint Check & Fix)

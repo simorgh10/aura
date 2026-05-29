@@ -120,3 +120,15 @@ We implemented advanced mathematical coordinate transformations and SVG stack se
 We integrated reactive mathematical constraint checks and automated graph layout resetting tools:
 1. **Top-Level Root Overlap Resolver:** Programmed an iterative bounding box overlap checker inside the `layoutNodes()` calculated layout signal. Right after roots are aligned, it resolves collisions by pushing overlapping parent domain backdrops to the right. Since children translation is applied subsequently, nested child cards shift together smoothly, completely eliminating parent overlap locks.
 2. **Auto-Align Force Rebalancer:** Introduced `rebalanceLayout()` in `TopologyStore` and hooked it to a dedicated toolbar button with the `layout` icon. When clicked, it purges all manual coordinates dragging offsets and centers the infinite pan/zoom coordinates. This reactively snaps the graph back to its clean, calculated, spatially balanced spring-embedder relative coordinates compiled by the layout compiler.
+
+### Q4: Explain the engineering details behind the Dynamic 2D Grid-Wrapping Layout compiler and how it balances components.
+#### Expert Answer:
+We replaced the flat, space-inefficient single-row tree layout with a high-performance **2D Grid-Wrapping Layout Compiler**:
+1. **Dynamic Child Grid Mathematics:** Sibling child nodes are partitioned into grid rows with a maximum column cap (`maxCols = 2`). The layout compiler recursively sizes all nested children, extracts the maximum widths for each column (`maxColWidths`) and heights for each row (`rowHeights`), and calculates structured 2D coordinate offsets:
+
+   $$\text{child.x} \leftarrow \text{paddingX} + \sum_{k < \text{colIndex}} \text{maxColWidths}[k] + \text{gapX} + \text{offset.x}$$
+
+   $$\text{child.y} \leftarrow \text{paddingTop} + \sum_{k < \text{rowIndex}} \text{rowHeights}[k] + \text{gapY} + \text{offset.y}$$
+
+   This packs nested leaf cards into dense, beautiful box clusters, keeping parent domain shapes compact.
+2. **2D Root Layout Compiler:** We applied identical 2-column grid partitioning (`rootMaxCols = 2`) to the top-level root containers. When dragging offsets are reset (Rebalanced), the domains are cleanly arranged in staggered rows and columns rather than stretching into an infinite horizontal row. This balances card distributions across both the horizontal and vertical axes of the 2D canvas, improving visual scannability and connector path flows.
