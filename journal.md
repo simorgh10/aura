@@ -26,4 +26,7 @@ This journal serves as an immutable, chronological record of architectural insig
 - **Action Taken (Follow-up):** Decoupled nested child visibility from the visual visibility of parent containers.
 - **Architectural Decision:** Rewrote `resolveVisibility` to trace ancestor `isExpanded` states recursively rather than ancestor `isVisible` states. This enables container nodes (like Domains) to be visually hidden via layer control menu selections, while their child nodes remain perfectly visible and laid out at their absolute graph positions.
 - **Lesson Learned:** Decoupling parent layer display properties from the hierarchical state of their descendants is essential to support granular view filtering without causing silent downstream node disappearances.
+- **Action Taken (Follow-up 2):** Resolved child superposition (overlap) bug when parent container layers are hidden.
+- **Architectural Decision:** Upgraded `computeNodeSizeAndLayout` to layout child relative positions even when the parent node itself is invisible (provided the parent has visible descendants). Modified Step 4 and Step 5 to sequentially position and translate coordinates globally for invisible parent nodes, ensuring visible children inherit correct absolute coordinate origins.
+- **Lesson Learned:** Visually hiding a container backdrop card must not interrupt the recursive geometry compiler passes, or relative-to-global translations will fail, resulting in children coordinates collapsing to zero (superposition).
 

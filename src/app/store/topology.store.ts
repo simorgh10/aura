@@ -171,22 +171,20 @@ export const TopologyStore = signalStore(
         const node = nodeMap[nodeId];
         if (!node) return { width: 0, height: 0 };
 
-        // If the node is not visible, it has no dimensions
-        if (!node.isVisible) {
+        // Identify visible children inside the container
+        const visibleChildren = (!node.isLeaf && node.isExpanded && node.childrenIds.length > 0)
+          ? node.childrenIds.map(cid => nodeMap[cid]).filter(c => c && c.isVisible)
+          : [];
+
+        // If the node itself is not visible, and it has no visible children, it has no dimensions in the layout
+        if (!node.isVisible && visibleChildren.length === 0) {
+          node.width = 0;
+          node.height = 0;
           return { width: 0, height: 0 };
         }
 
-        // If it's a leaf or collapsed, it has a fixed component size
-        if (node.isLeaf || !node.isExpanded || node.childrenIds.length === 0) {
-          node.width = 240;
-          node.height = 115;
-          return { width: 240, height: 115 };
-        }
-
-        // Otherwise, it is an expanded container. We lay out visible children side-by-side (flex row)
-        const visibleChildren = node.childrenIds.map(cid => nodeMap[cid]).filter(c => c && c.isVisible);
-
-        if (visibleChildren.length === 0) {
+        // If it's a leaf, collapsed, or has no visible children, it gets fixed size (provided it is visible)
+        if (node.isLeaf || !node.isExpanded || visibleChildren.length === 0) {
           node.width = 240;
           node.height = 115;
           return { width: 240, height: 115 };
@@ -253,7 +251,13 @@ export const TopologyStore = signalStore(
 
       roots.forEach(root => {
         const node = nodeMap[root.id];
-        if (node && node.isVisible) {
+        if (node) {
+          // If the root container itself is hidden and has no visible children, we skip positioning it
+          const hasVisibleDescendants = !node.isLeaf && node.isExpanded && node.childrenIds.some(cid => nodeMap[cid]?.isVisible);
+          if (!node.isVisible && !hasVisibleDescendants) {
+            return;
+          }
+
           computeNodeSizeAndLayout(node.id);
           
           const offsetKey = `${activeHierarchy.id}:${node.id}`;
@@ -269,9 +273,9 @@ export const TopologyStore = signalStore(
       // 5. Translate local relative coordinates of nested children to global absolute coordinates, and compute depth recursively
       const applyGlobalTranslations = (nodeId: string, parentGlobalX: number, parentGlobalY: number, parentDepth: number) => {
         const node = nodeMap[nodeId];
-        if (!node || !node.isVisible) return;
+        if (!node) return;
 
-        // Add parent coordinates to get global absolute coordinate space
+        // Add parent coordinates to get global absolute coordinate space, regardless of node's own visibility
         node.x += parentGlobalX;
         node.y += parentGlobalY;
         node.depth = parentDepth + 1;
