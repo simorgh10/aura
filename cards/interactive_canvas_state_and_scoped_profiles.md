@@ -76,6 +76,24 @@ When dragging a child down or right, parent bounding box width/height grow natur
 3. We shift the parent's own coordinates left/upward in coordinate space: $parent.x \leftarrow parent.x - \text{shiftX}$.
 This mathematically forces the parent container to expand its top-left boundaries to encompass the child, keeping the child's global absolute graph coordinates static and eliminating jumps.
 
+### 8. Sibling Overlaps Constraint Check & Push
+Hiding parent containers and dragging their children close to each other causes parent containers to overlap when they are re-displayed, locking their dragging coordinates. To maintain stable separate cards, we introduce a **Reactive Constraint Checker**:
+- Right after root positioning, we run an iterative overlap resolution pass inside the layout signal.
+- For all visible root containers, we check for overlap. If $A$ overlaps $B$:
+  
+  $$\text{overlapX} = \min(A.x + A.width, B.x + B.width) - \max(A.x, B.x)$$
+  
+  $$B.x \leftarrow B.x + \text{overlapX} + \text{buffer}$$
+  
+  This automatically pushes colliding parent domain cards to the right, resolving overlaps dynamically inside the reactive stream.
+
+### 9. Spatially Balanced Rebalancing (Force Reset)
+In graph layouts, distributing nodes in a spatially balanced way is a standard problem resolved by **Force-Directed Graph Layouts** (e.g. Fruchterman-Reingold orTuttes Spring Embedder models). 
+To distribute cards cleanly on the canvas without overlapping or cluttered offsets, we implement a **Rebalance Layout Tool**:
+- We expose a manual rebalance trigger.
+- Triggering this resets all user drag offsets (`nodeOffsets = {}`) and centers the viewport.
+- This immediately returns all elements to their computed, perfectly symmetrical, spatially balanced D3-inspired relative layouts compiled by our Signals coordinate engine.
+
 ---
 
 ## Section 2: Q&A
@@ -96,3 +114,9 @@ We implemented advanced mathematical coordinate transformations and SVG stack se
 1. **Tri-Layer Splitter:** We partitioned `layoutNodes()` inside `CanvasComponent` into `containerNodes` and `leafNodes` signals. In the HTML template, we rendered `<g>` layers in sequence: containers first, edges second, and leaf cards last. This successfully exposed nested connections while keeping line ports neat.
 2. **Collision Cascade Resolver:** Upgraded `updateNodeOffset` inside `TopologyStore` to recursively trace overlapping sibling bounds. It moves target and collateral nodes by identical deltas in a single state transaction, preventing overlapping card clutter.
 3. **Origin Shifting Engine:** Upgraded `computeNodeSizeAndLayout` to check children's top-left margins. It automatically shifts relative children inward and moves parent coordinates left/upward by corresponding deltas, allowing unlimited container growth in all four directions.
+
+### Q3: Explain how you resolved parent container overlaps on re-displaying layers and supported spatially balanced rebalancing.
+#### Expert Answer:
+We integrated reactive mathematical constraint checks and automated graph layout resetting tools:
+1. **Top-Level Root Overlap Resolver:** Programmed an iterative bounding box overlap checker inside the `layoutNodes()` calculated layout signal. Right after roots are aligned, it resolves collisions by pushing overlapping parent domain backdrops to the right. Since children translation is applied subsequently, nested child cards shift together smoothly, completely eliminating parent overlap locks.
+2. **Auto-Align Force Rebalancer:** Introduced `rebalanceLayout()` in `TopologyStore` and hooked it to a dedicated toolbar button with the `layout` icon. When clicked, it purges all manual coordinates dragging offsets and centers the infinite pan/zoom coordinates. This reactively snaps the graph back to its clean, calculated, spatially balanced spring-embedder relative coordinates compiled by the layout compiler.

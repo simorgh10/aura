@@ -270,6 +270,36 @@ export const TopologyStore = signalStore(
         }
       });
 
+      // 4b. Resolve overlaps between top-level roots (Constraint Check & Fix)
+      const resolveRootOverlaps = () => {
+        const visibleRoots = roots.map(r => nodeMap[r.id]).filter(n => n && n.isVisible);
+        let hasOverlap = true;
+        let safetyCounter = 0;
+
+        while (hasOverlap && safetyCounter < 50) {
+          hasOverlap = false;
+          safetyCounter++;
+
+          for (let i = 0; i < visibleRoots.length; i++) {
+            const A = visibleRoots[i];
+            for (let j = i + 1; j < visibleRoots.length; j++) {
+              const B = visibleRoots[j];
+              
+              const overlapX = Math.min(A.x + A.width, B.x + B.width) - Math.max(A.x, B.x);
+              const overlapY = Math.min(A.y + A.height, B.y + B.height) - Math.max(A.y, B.y);
+
+              if (overlapX > 0 && overlapY > 0) {
+                hasOverlap = true;
+                // Push overlapping container B to the right with a 20px gap buffer
+                B.x += overlapX + 20;
+              }
+            }
+          }
+        }
+      };
+
+      resolveRootOverlaps();
+
       // 5. Translate local relative coordinates of nested children to global absolute coordinates, and compute depth recursively
       const applyGlobalTranslations = (nodeId: string, parentGlobalX: number, parentGlobalY: number, parentDepth: number) => {
         const node = nodeMap[nodeId];
@@ -469,6 +499,15 @@ export const TopologyStore = signalStore(
 
     resetViewport() {
       patchState(store, { panX: 100, panY: 100, zoom: 1 });
+    },
+
+    rebalanceLayout() {
+      patchState(store, { 
+        nodeOffsets: {}, 
+        panX: 100, 
+        panY: 100, 
+        zoom: 1 
+      });
     },
 
     updateNodeOffset(hierarchyId: string, nodeId: string, dx: number, dy: number) {

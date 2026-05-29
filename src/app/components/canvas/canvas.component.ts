@@ -42,6 +42,13 @@ import { IconComponent } from '../icon/icon.component';
         >
           <app-icon name="maximize" [size]="16"></app-icon>
         </button>
+        <button 
+          (click)="rebalanceGraph()" 
+          title="Rebalance & Auto-Align Graph (Force Reset)"
+          class="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors"
+        >
+          <app-icon name="layout" [size]="16"></app-icon>
+        </button>
         <span class="text-xs font-mono font-medium text-slate-500 px-2 min-w-[50px] text-center select-none">
           {{ zoomPercent() }}%
         </span>
@@ -262,5 +269,9 @@ export class CanvasComponent {
 
   resetView() {
     this.store.resetViewport();
+  }
+
+  rebalanceGraph() {
+    this.store.rebalanceLayout();
   }
 }
