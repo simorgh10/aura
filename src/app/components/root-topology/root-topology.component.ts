@@ -12,6 +12,9 @@ import { IconComponent } from '../icon/icon.component';
   selector: 'app-root-topology',
   standalone: true,
   imports: [CommonModule, RouterModule, CanvasComponent, SidebarComponent, IconComponent],
+  host: {
+    class: 'block w-full h-full'
+  },
   template: `
     <div class="h-full w-full relative select-none">
       

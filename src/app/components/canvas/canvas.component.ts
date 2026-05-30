@@ -9,6 +9,9 @@ import { IconComponent } from '../icon/icon.component';
   selector: 'app-canvas',
   standalone: true,
   imports: [CommonModule, NodeBoxComponent, IconComponent],
+  host: {
+    class: 'block w-full h-full'
+  },
   template: `
     <div 
       class="relative w-full h-full overflow-hidden bg-[#060a13] select-none"
