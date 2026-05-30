@@ -36,3 +36,13 @@ This journal serves as an immutable, chronological record of architectural insig
 - **Architectural Decision:** Implemented dynamic row heights and column widths grouping logic using rows of max size 2. Recursively parsed and positioned child cards based on calculated column margins, preserving custom drag offsets. Applied the same 2-column grid wrapping to top-level domains.
 - **Lesson Learned:** Balanced 2D distributions are far more space-efficient and visually readable than single-line row trees. Upgrading the geometry compiler to divide cards into dynamic rows and columns before positioning completely resolves empty vertical axis layouts and excessive horizontal stretching.
 
+### [2026-05-29] Predictable Dragging & Decoupled Overlap Resolution
+- **Action Taken:** Simplified active dragging coordinates mutations to ensure predictable localized card movement and completed decoupled visual overlap checks.
+- **Architectural Decision:** Removed recursive push-based sibling collision cascades from `updateNodeOffset()` to completely eliminate sudden or chaotic ("brutal") visual side-effects. Retained the iterative `resolveRootOverlaps()` pass inside `layoutNodes()` calculated signal to automatically resolve overlapping roots ONLY when parent domain layers are redisplayed or rebalanced.
+- **Lesson Learned:** Disabling active collision calculations during cursor drags produces a much more natural, lightweight, and predictable interaction flow. Relying on reactive computed layout signals to resolve container overlaps ONLY upon state boundary transitions (such as toggling visibilities or manual rebalancing) achieves perfect structural cleanliness with zero runtime lag.
+
+### [2026-05-29] Gentle Least-Overlap Collision Pushing
+- **Action Taken:** Developed a gentle least-overlap collision pushing algorithm inside the active dragging coordinates compiler in the store.
+- **Architectural Decision:** Upgraded `updateNodeOffset()` to check for rectangular intersection of visible siblings. If an overlap occurs during cursor drags, the colliding card is pushed along its axis of minimum overlap by exactly `overlap + 15px` gap buffer (the least possible distance). This eliminates brutal jumps and creates a smooth sliding physical contact.
+- **Lesson Learned:** Calculating collision vectors dynamically based on minimum overlap sizes instead of flat coordinate offsets guarantees localized predictable drags that naturally slide only when boundaries touch. This fulfills the strict parent auto-resize boundary containment rules with zero visual lag.
+

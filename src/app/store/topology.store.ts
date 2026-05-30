@@ -588,41 +588,53 @@ export const TopologyStore = signalStore(
         return false;
       };
 
-      // Recursive push function
-      const pushNode = (targetId: string, deltaX: number, deltaY: number) => {
+      // Gentle Least-Overlap Collision Push
+      const pushNode = (targetId: string, shiftX: number, shiftY: number) => {
         if (visited.has(targetId)) return;
         visited.add(targetId);
 
         const offsetKey = `${hierarchyId}:${targetId}`;
         const existing = nextOffsets[offsetKey] || { x: 0, y: 0 };
-        nextOffsets[offsetKey] = { x: existing.x + deltaX, y: existing.y + deltaY };
+        nextOffsets[offsetKey] = { x: existing.x + shiftX, y: existing.y + shiftY };
 
         const targetNode = nodeMap[targetId];
         if (!targetNode) return;
 
-        // Visual bounding boundaries for collision check (adding delta to target position)
-        const targetNewX = targetNode.x + deltaX;
-        const targetNewY = targetNode.y + deltaY;
+        // Apply shift to targetNode bounds for downstream sibling checks
+        const targetNewX = targetNode.x + shiftX;
+        const targetNewY = targetNode.y + shiftY;
 
         Object.values(nodeMap).forEach(other => {
           if (other.id === targetId || !other.isVisible || visited.has(other.id)) return;
 
-          // Prevent collision checks between parents and their own children (and vice versa)
+          // Prevent collision checks between parents and their own children
           if (isAncestor(targetId, other.id) || isAncestor(other.id, targetId)) {
             return;
           }
 
-          // Check for rectangular intersection
+          // Check for rectangular intersection using target's shifted coordinates
           const overlapX = Math.min(targetNewX + targetNode.width, other.x + other.width) - Math.max(targetNewX, other.x);
           const overlapY = Math.min(targetNewY + targetNode.height, other.y + other.height) - Math.max(targetNewY, other.y);
 
           if (overlapX > 0 && overlapY > 0) {
-            // Push recursive sibling by the exact drag movement deltas
-            pushNode(other.id, deltaX, deltaY);
+            // Push along the axis of minimum overlap (least possible movement)
+            let siblingShiftX = 0;
+            let siblingShiftY = 0;
+
+            if (overlapX < overlapY) {
+              // Push horizontally
+              siblingShiftX = targetNewX < other.x ? overlapX + 15 : -(overlapX + 15);
+            } else {
+              // Push vertically
+              siblingShiftY = targetNewY < other.y ? overlapY + 15 : -(overlapY + 15);
+            }
+
+            pushNode(other.id, siblingShiftX, siblingShiftY);
           }
         });
       };
 
+      // The dragged node moves by the raw drag deltas (dx, dy)
       pushNode(nodeId, dx, dy);
       patchState(store, { nodeOffsets: nextOffsets });
     }
