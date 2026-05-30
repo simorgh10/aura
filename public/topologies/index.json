@@ -1,0 +1,36 @@
+{
+  "id": "root",
+  "name": "Enterprise Architecture Registry",
+  "type": "index",
+  "children": [
+    {
+      "id": "e-commerce",
+      "name": "E-Commerce Ecosystem",
+      "description": "Enterprise storefront systems, dynamic shopping checkouts, payment processing portals, and inventory services.",
+      "type": "index",
+      "children": [
+        {
+          "id": "checkout",
+          "name": "Checkout & Payments System",
+          "description": "Interactive visual map of customer checkouts, Stripe external gateways, and S3 manifest state registers.",
+          "type": "leaf",
+          "manifest": "/topology.yaml"
+        },
+        {
+          "id": "inventory",
+          "name": "Inventory & Warehouse Services",
+          "description": "Active tracking systems, warehouse database registers, stock catalogs, and supplier logistics feeds.",
+          "type": "leaf",
+          "manifest": "/topologies/inventory.yaml"
+        }
+      ]
+    },
+    {
+      "id": "telecom",
+      "name": "Telecom Backbone Infrastructure",
+      "description": "High-availability fiber backbones, cellular access gateway nodes, routing rings, and regional switching grids.",
+      "type": "leaf",
+      "manifest": "/topologies/telecom.yaml"
+    }
+  ]
+}

@@ -279,3 +279,11 @@ We implemented an advanced, natural **Least-Overlap Collision Pushing** algorith
    
    Using a small 15px gap buffer, this shifts colliding siblings strictly by the minimum distance required to clear the overlap, creating a smooth, natural sliding contact with zero brutal jumps.
 3. **Visibility & Ancestor Filter:** Pushing is applied strictly to visible cards (`isVisible = true`), completely ignoring invisible parent backdrops or hidden components.
+
+### Q7: Explain the architectural benefits of utilizing a central Topology Registry (such as index.json) over raw path-based folder crawling.
+#### Expert Answer:
+A central, metadata-rich **Topology Registry** is far superior to raw folder-crawling systems for several reasons:
+1. **Rich Subdomain Metadata:** It allows us to bind contextual descriptions, team ownerships (`Owner: Payments`), deployment tags, and system statuses (`Active`, `Maintenance`) to any directory level. This details sub-levels before fetching heavy coordinate manifests.
+2. **Logical vs. Physical Decoupling:** It decouples logical, dynamic URLs from physical file paths. A single topology manifest YAML can be dynamically linked in multiple logical categories (e.g., `/teams/logistics` and `/architecture/inventory`) without duplicating assets.
+3. **Instant Global Client-Side Search:** Because the registry is a unified tree loaded in memory, users can perform global keyword queries across *all* deep index hierarchies in microseconds.
+4. **Dynamic Access Controls:** A backend can filter index nodes dynamically based on user session claims, naturally hiding restricted sub-levels (e.g., `/prod-billing`) without modifying hardcoded routing tables.

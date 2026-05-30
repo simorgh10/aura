@@ -1,0 +1,111 @@
+version: "2026.1"
+
+types:
+  components:
+    domain:
+      icon: "layout"
+      css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.05)" }
+    microservice:
+      icon: "cpu"
+      css: { "border-color": "var(--color-microservice)", "background-color": "rgba(6, 182, 212, 0.05)" }
+    database:
+      icon: "database"
+      css: { "border-color": "var(--color-database)", "background-color": "rgba(16, 185, 129, 0.05)" }
+    gateway:
+      icon: "globe"
+      css: { "border-color": "var(--color-domain)", "background-color": "rgba(59, 130, 246, 0.05)" }
+  edges:
+    async:
+      css: { "stroke": "var(--color-microservice)", "stroke-width": "2.5", "stroke-dasharray": "8,8", "animation": "flow-dash 1.2s linear infinite" }
+    sync:
+      css: { "stroke": "var(--color-gateway)", "stroke-width": "3", "animation": "flow-dash 2s linear infinite" }
+
+hierarchies:
+  - id: "telecom_core"
+    name: "Telecom Backbone Ring"
+    default_profile: "prod"
+    layers: ["domain", "microservice", "database", "gateway"]
+    profiles:
+      - id: "prod"
+        props:
+          env: "PROD-TELECOM"
+          k8s_cluster: "telecom-eu-central"
+          gitlab_base: "https://gitlab.com/enterprise/telecom-prod"
+          db_host: "telecom-postgres-registry.internal"
+    tree:
+      - id: "core-ring-zone"
+        type: "domain"
+        children: ["east-ring-router", "west-ring-router", "central-switch"]
+      - id: "edge-access-zone"
+        type: "domain"
+        children: ["cell-tower-gateway", "sub-station-switch"]
+
+components:
+  - id: "core-ring-zone"
+    type: "domain"
+    name: "Core Fiber Backbone Ring - ${env}"
+    docs: "/docs/ordering-domain.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/core-ring" }
+    ports: ["in", "out"]
+
+  - id: "edge-access-zone"
+    type: "domain"
+    name: "Edge Access & Cellular Zone - ${env}"
+    docs: "/docs/payment-gateway.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/edge-access" }
+    ports: ["in", "out"]
+
+  - id: "east-ring-router"
+    type: "gateway"
+    name: "East Fiber Ring Router (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/east-router" }
+    ports: ["in", "out"]
+
+  - id: "west-ring-router"
+    type: "gateway"
+    name: "West Fiber Ring Router (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/west-router" }
+    ports: ["in", "out"]
+
+  - id: "central-switch"
+    type: "microservice"
+    name: "Central Optical Switch Controller (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    ports: ["in", "out"]
+
+  - id: "cell-tower-gateway"
+    type: "gateway"
+    name: "Cellular Tower Access Gateway (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/cell-gateway" }
+    ports: ["in", "out"]
+
+  - id: "sub-station-switch"
+    type: "microservice"
+    name: "Regional Substation Switch (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    ports: ["in", "out"]
+
+edges:
+  - from: "east-ring-router:out"
+    to: "west-ring-router:in"
+    type: "sync"
+  - from: "west-ring-router:out"
+    to: "central-switch:in"
+    type: "sync"
+  - from: "central-switch:out"
+    to: "east-ring-router:in"
+    type: "sync"
+  - from: "cell-tower-gateway:out"
+    to: "sub-station-switch:in"
+    type: "async"
+  - from: "sub-station-switch:out"
+    to: "central-switch:in"
+    type: "async"

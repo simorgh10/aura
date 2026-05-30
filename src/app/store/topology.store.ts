@@ -26,6 +26,11 @@ export interface TopologyState {
   panY: number;
   loading: boolean;
   nodeOffsets: Record<string, { x: number; y: number }>;
+  currentViewType: 'index' | 'leaf' | 'loading' | 'error';
+  currentIndexNode: any | null;
+  currentPathSegments: string[];
+  errorMsg: string | null;
+  registry: any | null;
 }
 
 const initialState: TopologyState = {
@@ -40,7 +45,13 @@ const initialState: TopologyState = {
   panY: 100,
   loading: false,
   nodeOffsets: {},
+  currentViewType: 'loading',
+  currentIndexNode: null,
+  currentPathSegments: [],
+  errorMsg: null,
+  registry: null,
 };
+
 
 export const TopologyStore = signalStore(
   { providedIn: 'root' },
@@ -492,11 +503,11 @@ export const TopologyStore = signalStore(
 
   withMethods((store, http = inject(HttpClient)) => ({
     // Loads the YAML Topology manifest and sets initial UI state
-    async loadTopology() {
+    async loadTopology(manifestUrl: string = '/topology.yaml') {
       patchState(store, { loading: true });
       try {
         const yamlText = await firstValueFrom(
-          http.get('/topology.yaml', { responseType: 'text' })
+          http.get(manifestUrl, { responseType: 'text' })
         );
         const doc = jsYaml.load(yamlText) as TopologyManifest;
         
@@ -512,8 +523,71 @@ export const TopologyStore = signalStore(
           loading: false
         });
       } catch (err) {
-        console.error('Failed to load topology.yaml manifest', err);
-        patchState(store, { loading: false });
+        console.error('Failed to load topology manifest from ' + manifestUrl, err);
+        patchState(store, { loading: false, currentViewType: 'error', errorMsg: 'Failed to load topology map configuration.' });
+      }
+    }
+  })),
+
+  withMethods((store, http = inject(HttpClient)) => ({
+    // Resolves deep navigation paths based on the topologies registry
+    async navigateToPath(segments: string[]) {
+      patchState(store, { currentViewType: 'loading', errorMsg: null });
+      try {
+        let currentNode = store.registry();
+        if (!currentNode) {
+          const indexData = await firstValueFrom(
+            http.get('/topologies/index.json')
+          );
+          patchState(store, { registry: indexData });
+          currentNode = indexData;
+        }
+
+        let found = true;
+        for (const seg of segments) {
+          if (currentNode.type === 'index' && currentNode.children) {
+            const child = currentNode.children.find((c: any) => c.id === seg);
+            if (child) {
+              currentNode = child;
+            } else {
+              found = false;
+              break;
+            }
+          } else {
+            found = false;
+            break;
+          }
+        }
+
+        if (!found) {
+          patchState(store, { 
+            currentViewType: 'error', 
+            errorMsg: `Topological view not found: /${segments.join('/')}`,
+            currentPathSegments: segments
+          });
+          return;
+        }
+
+        if (currentNode.type === 'leaf') {
+          patchState(store, { 
+            currentViewType: 'leaf',
+            currentIndexNode: null,
+            currentPathSegments: segments
+          });
+          await store.loadTopology(currentNode.manifest);
+        } else {
+          patchState(store, { 
+            currentViewType: 'index',
+            currentIndexNode: currentNode,
+            currentPathSegments: segments,
+            manifest: null,
+            activeHierarchyId: null,
+            activeProfileId: null
+          });
+        }
+      } catch (err) {
+        console.error('Failed to resolve dynamic topology path', err);
+        patchState(store, { currentViewType: 'error', errorMsg: 'Failed to load topologies index.' });
       }
     },
 

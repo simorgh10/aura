@@ -1,0 +1,145 @@
+version: "2026.1"
+
+types:
+  components:
+    domain:
+      icon: "layout"
+      css: { "border-color": "var(--color-domain)", "background-color": "rgba(59, 130, 246, 0.05)" }
+    microservice:
+      icon: "cpu"
+      css: { "border-color": "var(--color-microservice)", "background-color": "rgba(6, 182, 212, 0.05)" }
+    database:
+      icon: "database"
+      css: { "border-color": "var(--color-database)", "background-color": "rgba(16, 185, 129, 0.05)" }
+    bucket:
+      icon: "archive"
+      css: { "border-color": "var(--color-bucket)", "background-color": "rgba(245, 158, 11, 0.05)" }
+    gateway:
+      icon: "globe"
+      css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.05)" }
+  edges:
+    async:
+      css: { "stroke": "var(--color-microservice)", "stroke-width": "2", "stroke-dasharray": "6,6", "animation": "flow-dash 1.5s linear infinite" }
+    sync:
+      css: { "stroke": "var(--color-domain)", "stroke-width": "2.5" }
+    db_flow:
+      css: { "stroke": "var(--color-database)", "stroke-width": "2", "stroke-dasharray": "4,4", "animation": "flow-dash 0.8s linear infinite" }
+
+hierarchies:
+  - id: "logistics"
+    name: "Logistics Flow"
+    default_profile: "prod"
+    layers: ["domain", "microservice", "database", "bucket", "gateway"]
+    profiles:
+      - id: "prod"
+        props:
+          env: "PROD-LOGISTICS"
+          k8s_cluster: "eu-west-1-logistics"
+          gitlab_base: "https://gitlab.com/enterprise/inventory-prod"
+          db_host: "prod-postgres-aurora.internal"
+          bucket_name: "prod-inventory-catalog-media"
+      - id: "staging"
+        props:
+          env: "STAGE-LOGISTICS"
+          k8s_cluster: "eu-west-1-stage-log"
+          gitlab_base: "https://gitlab.com/enterprise/inventory-stage"
+          db_host: "staging-postgres.internal"
+          bucket_name: "staging-catalog-media"
+    tree:
+      - id: "warehouse-domain"
+        type: "domain"
+        children: ["warehouse-api", "warehouse-db", "stock-tracker"]
+      - id: "catalog-domain"
+        type: "domain"
+        children: ["catalog-api", "catalog-db", "media-bucket"]
+  - id: "simple_log"
+    name: "Basic Operations"
+    default_profile: "dev"
+    layers: ["domain", "microservice", "database"]
+    profiles:
+      - id: "dev"
+        props:
+          env: "DEV-LOGISTICS"
+          k8s_cluster: "local-k3s-dev"
+          gitlab_base: "https://gitlab.com/enterprise/inventory-dev"
+          db_host: "localhost-db"
+    tree:
+      - id: "warehouse-domain"
+        type: "domain"
+        children: ["warehouse-api"]
+
+components:
+  - id: "warehouse-domain"
+    type: "domain"
+    name: "Warehouse Ops Subsystem - ${env}"
+    docs: "/docs/ordering-domain.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/warehouse" }
+    ports: ["in", "out"]
+
+  - id: "catalog-domain"
+    type: "domain"
+    name: "Product Catalog Subsystem - ${env}"
+    docs: "/docs/payment-gateway.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/catalog" }
+    ports: ["in", "out"]
+
+  - id: "warehouse-api"
+    type: "microservice"
+    name: "Warehouse API Router (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/warehouse-api" }
+    ports: ["in", "out", "db"]
+
+  - id: "stock-tracker"
+    type: "microservice"
+    name: "Stock Tracker Worker (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/stock-tracker" }
+    ports: ["in", "db"]
+
+  - id: "warehouse-db"
+    type: "database"
+    name: "Warehouse PostgreSQL DB (${db_host})"
+    docs: "/docs/order-db.md"
+    ports: ["in"]
+
+  - id: "catalog-api"
+    type: "microservice"
+    name: "Product Catalog API (${k8s_cluster})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/catalog-api" }
+    ports: ["in", "out", "db"]
+
+  - id: "media-bucket"
+    type: "bucket"
+    name: "Catalog Assets Bucket (${bucket_name})"
+    docs: "/docs/order-api.md"
+    ports: ["in"]
+
+  - id: "catalog-db"
+    type: "database"
+    name: "Catalog Redis Grid (${db_host})"
+    docs: "/docs/order-db.md"
+    ports: ["in"]
+
+edges:
+  - from: "catalog-api:db"
+    to: "catalog-db:in"
+    type: "db_flow"
+  - from: "catalog-api:out"
+    to: "media-bucket:in"
+    type: "async"
+  - from: "warehouse-api:out"
+    to: "stock-tracker:in"
+    type: "async"
+  - from: "stock-tracker:db"
+    to: "warehouse-db:in"
+    type: "db_flow"
+  - from: "catalog-api:out"
+    to: "warehouse-api:in"
+    type: "sync"
