@@ -99,6 +99,27 @@ import { Component, input } from '@angular/core';
         @case ('maximize') {
           <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
         }
+        @case ('zap') {
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="none" />
+        }
+        @case ('folder') {
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        }
+        @case ('search') {
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        }
+        @case ('table') {
+          <path d="M9 3H5a2 2 0 0 0-2 2v4h6V3zm10 0h-4v6h6V5a2 2 0 0 0-2-2zM9 11H3v4h6v-4zm10 0h-6v4h6v-4zM9 17H3v2a2 2 0 0 0 2 2h4v-4zm10 0h-6v4h4a2 2 0 0 0 2-2v-2z" />
+        }
+        @case ('layers') {
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        }
+        @case ('message-square') {
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        }
         @default {
           <!-- fallback circle -->
           <circle cx="12" cy="12" r="10" />

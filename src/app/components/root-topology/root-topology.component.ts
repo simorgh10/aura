@@ -200,12 +200,12 @@ import { IconComponent } from '../icon/icon.component';
                     <div class="flex items-center gap-2 select-none">
                       <span 
                         [ngClass]="{
-                          'bg-blue-500/20 text-blue-400': layer === 'domain',
-                          'bg-cyan-500/20 text-cyan-400': layer === 'microservice',
-                          'bg-emerald-500/20 text-emerald-400': layer === 'database',
-                          'bg-purple-500/20 text-purple-400': layer === 'subnet',
-                          'bg-amber-500/20 text-amber-400': layer === 'bucket',
-                          'bg-pink-500/20 text-pink-400': layer === 'gateway'
+                          'bg-blue-500/20 text-blue-400': layer === 'domain' || layer === 'schema',
+                          'bg-cyan-500/20 text-cyan-400': layer === 'microservice' || layer === 'springboot' || layer === 'connector',
+                          'bg-emerald-500/20 text-emerald-400': layer === 'database' || layer === 'aurora' || layer === 'opensearch',
+                          'bg-purple-500/20 text-purple-400': layer === 'subnet' || layer === 'kafka',
+                          'bg-amber-500/20 text-amber-400': layer === 'bucket' || layer === 'folder',
+                          'bg-pink-500/20 text-pink-400': layer === 'gateway' || layer === 'lambda' || layer === 'table'
                         }"
                         class="w-2.5 h-2.5 rounded-full"
                       ></span>

@@ -1,0 +1,256 @@
+version: "2026.1"
+
+types:
+  components:
+    domain:
+      icon: "layout"
+      css: { "border-color": "var(--color-domain)", "background-color": "rgba(59, 130, 246, 0.03)" }
+    springboot:
+      icon: "cpu"
+      css: { "border-color": "var(--color-microservice)", "background-color": "rgba(6, 182, 212, 0.05)" }
+    kafka:
+      icon: "message-square"
+      css: { "border-color": "var(--color-subnet)", "background-color": "rgba(139, 92, 246, 0.05)" }
+    aurora:
+      icon: "database"
+      css: { "border-color": "var(--color-database)", "background-color": "rgba(16, 185, 129, 0.05)" }
+    schema:
+      icon: "layers"
+      css: { "border-color": "var(--color-domain)", "background-color": "rgba(59, 130, 246, 0.03)" }
+    table:
+      icon: "table"
+      css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.05)" }
+    lambda:
+      icon: "zap"
+      css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.05)" }
+    eventbridge:
+      icon: "zap"
+      css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.03)" }
+    bucket:
+      icon: "archive"
+      css: { "border-color": "var(--color-bucket)", "background-color": "rgba(245, 158, 11, 0.05)" }
+    folder:
+      icon: "folder"
+      css: { "border-color": "var(--color-bucket)", "background-color": "rgba(245, 158, 11, 0.03)" }
+    connector:
+      icon: "message-square"
+      css: { "border-color": "var(--color-microservice)", "background-color": "rgba(6, 182, 212, 0.03)" }
+    opensearch:
+      icon: "search"
+      css: { "border-color": "var(--color-database)", "background-color": "rgba(16, 185, 129, 0.05)" }
+  edges:
+    async:
+      css: { "stroke": "var(--color-microservice)", "stroke-width": "2", "stroke-dasharray": "6,6", "animation": "flow-dash 1.5s linear infinite" }
+    sync:
+      css: { "stroke": "var(--color-domain)", "stroke-width": "2.5" }
+    db_flow:
+      css: { "stroke": "var(--color-database)", "stroke-width": "2", "stroke-dasharray": "4,4", "animation": "flow-dash 0.8s linear infinite" }
+
+hierarchies:
+  - id: "event_analytics"
+    name: "Event-Driven Analytics Mesh"
+    default_profile: "prod"
+    layers: ["domain", "springboot", "kafka", "aurora", "schema", "table", "lambda", "eventbridge", "bucket", "folder", "connector", "opensearch"]
+    profiles:
+      - id: "prod"
+        props:
+          env: "PROD"
+          k8s_cluster: "us-east-1-telemetry"
+          gitlab_base: "https://gitlab.com/enterprise/analytics-mesh"
+          db_host: "prod-aurora-postgres-cluster.internal"
+          bucket_name: "prod-datalake-bucket-us-east-1"
+          opensearch_host: "prod-opensearch.internal"
+      - id: "staging"
+        props:
+          env: "STAGING"
+          k8s_cluster: "us-west-2-telemetry-stage"
+          gitlab_base: "https://gitlab.com/enterprise/analytics-mesh-stage"
+          db_host: "staging-aurora-postgres.internal"
+          bucket_name: "staging-datalake-bucket-us-west-2"
+          opensearch_host: "staging-opensearch.internal"
+    tree:
+      # S3 Bucket encapsulating folders which encapsulate data objects
+      - id: "datalake-bucket"
+        type: "bucket"
+        children: ["raw-stage-folder", "processed-stage-folder"]
+      - id: "raw-stage-folder"
+        type: "folder"
+        children: ["raw-telemetry-object"]
+      - id: "processed-stage-folder"
+        type: "folder"
+        children: ["enriched-analytics-object"]
+      
+      # Aurora DB encapsulating database schema, which encapsulates a table
+      - id: "aurora-cluster"
+        type: "aurora"
+        children: ["billing-schema"]
+      - id: "billing-schema"
+        type: "schema"
+        children: ["invoices-table"]
+
+components:
+  # Spring Boot microservices
+  - id: "ingest-service"
+    type: "springboot"
+    name: "Ingestion API Processor (${env})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/ingestion-api" }
+      - { type: "confluence", url: "https://confluence.enterprise.com/display/TELEMETRY/Ingestion+API+Processor" }
+    ports: ["in", "out"]
+
+  - id: "analytics-api"
+    type: "springboot"
+    name: "Real-time Analytics Engine (${env})"
+    docs: "/docs/order-api.md"
+    links:
+      - { type: "gitlab", url: "${gitlab_base}/analytics-engine" }
+      - { type: "confluence", url: "https://confluence.enterprise.com/display/TELEMETRY/Real-time+Analytics+Engine" }
+    ports: ["in", "out"]
+
+  # Kafka Topics
+  - id: "telemetry-raw-topic"
+    type: "kafka"
+    name: "kafka: telemetry.raw.events"
+    docs: "/docs/order-api.md"
+    ports: ["in", "out"]
+
+  - id: "enriched-events-topic"
+    type: "kafka"
+    name: "kafka: analytics.enriched.events"
+    docs: "/docs/order-api.md"
+    ports: ["in", "out"]
+
+  # Aurora DB (with schema and table encapsulation)
+  - id: "aurora-cluster"
+    type: "aurora"
+    name: "Aurora PostgreSQL DB Cluster (${db_host})"
+    docs: "/docs/order-db.md"
+    ports: ["in", "out"]
+
+  - id: "billing-schema"
+    type: "schema"
+    name: "Schema: billing_schema"
+    docs: "/docs/ordering-domain.md"
+    ports: ["in", "out"]
+
+  - id: "invoices-table"
+    type: "table"
+    name: "Table: invoices_t"
+    docs: "/docs/order-db.md"
+    ports: ["in"]
+
+  # AWS Lambda & EventBridge
+  - id: "eventbridge-bus"
+    type: "eventbridge"
+    name: "EventBridge Event Bus Trigger"
+    docs: "/docs/payment-gateway.md"
+    ports: ["out"]
+
+  - id: "ingest-lambda"
+    type: "lambda"
+    name: "Ingest serverless Lambda (${k8s_cluster})"
+    docs: "/docs/payment-gateway.md"
+    ports: ["in", "out"]
+
+  # S3 Buckets, S3 Folders, and Data Objects
+  - id: "datalake-bucket"
+    type: "bucket"
+    name: "S3 Bucket: datalake-s3 (${bucket_name})"
+    docs: "/docs/order-api.md"
+    ports: ["in", "out"]
+
+  - id: "raw-stage-folder"
+    type: "folder"
+    name: "Folder: /raw-stage/"
+    docs: "/docs/ordering-domain.md"
+    ports: ["in", "out"]
+
+  - id: "processed-stage-folder"
+    type: "folder"
+    name: "Folder: /processed-stage/"
+    docs: "/docs/ordering-domain.md"
+    ports: ["in", "out"]
+
+  - id: "raw-telemetry-object"
+    type: "table"
+    name: "File: telemetry_raw.csv"
+    docs: "/docs/order-db.md"
+    ports: ["in", "out"]
+
+  - id: "enriched-analytics-object"
+    type: "table"
+    name: "File: analytics_enriched.parquet"
+    docs: "/docs/order-db.md"
+    ports: ["in", "out"]
+
+  # Apache Iceberg Table
+  - id: "analytics-iceberg-table"
+    type: "table"
+    name: "Iceberg Table: analytics_summary"
+    docs: "/docs/order-db.md"
+    ports: ["in"]
+
+  # MQ Connector
+  - id: "mq-sink-connector"
+    type: "connector"
+    name: "ActiveMQ Sink Connector"
+    docs: "/docs/payment-gateway.md"
+    ports: ["in", "out"]
+
+  # OpenSearch Server
+  - id: "opensearch-cluster"
+    type: "opensearch"
+    name: "OpenSearch Cluster (${opensearch_host})"
+    docs: "/docs/order-api.md"
+    ports: ["in"]
+
+edges:
+  # EventBridge trigger fires Lambda
+  - from: "eventbridge-bus:out"
+    to: "ingest-lambda:in"
+    type: "sync"
+
+  # Lambda writes raw logs to S3 raw stage
+  - from: "ingest-lambda:out"
+    to: "raw-telemetry-object:in"
+    type: "async"
+
+  # Ingest Spring Boot microservice reads logs and publishes to Kafka raw topic
+  - from: "raw-telemetry-object:out"
+    to: "ingest-service:in"
+    type: "sync"
+  - from: "ingest-service:out"
+    to: "telemetry-raw-topic:in"
+    type: "async"
+
+  # MQ Connector sinks raw stream to corporate message broker
+  - from: "telemetry-raw-topic:out"
+    to: "mq-sink-connector:in"
+    type: "async"
+
+  # Analytics Spring Boot microservice consumes raw stream
+  - from: "telemetry-raw-topic:out"
+    to: "analytics-api:in"
+    type: "sync"
+
+  # Analytics engine writes to Aurora transactional invoices table and Kafka enriched topic
+  - from: "analytics-api:out"
+    to: "invoices-table:in"
+    type: "db_flow"
+  - from: "analytics-api:out"
+    to: "enriched-events-topic:in"
+    type: "async"
+
+  # Enriched stream writes parquet files to S3 processed stage and indexes in OpenSearch
+  - from: "enriched-events-topic:out"
+    to: "enriched-analytics-object:in"
+    type: "async"
+  - from: "enriched-events-topic:out"
+    to: "opensearch-cluster:in"
+    type: "async"
+
+  # Iceberg table registers and catalogs S3 parquets
+  - from: "enriched-analytics-object:out"
+    to: "analytics-iceberg-table:in"
+    type: "db_flow"

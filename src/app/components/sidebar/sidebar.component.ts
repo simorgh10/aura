@@ -27,12 +27,12 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
         <div class="flex items-center gap-3">
           <div 
             [ngClass]="{
-              'text-blue-400 bg-blue-500/10 border-blue-500/20': selectedNode()?.type === 'domain',
-              'text-cyan-400 bg-cyan-500/10 border-cyan-500/20': selectedNode()?.type === 'microservice',
-              'text-emerald-400 bg-emerald-500/10 border-emerald-500/20': selectedNode()?.type === 'database',
-              'text-purple-400 bg-purple-500/10 border-purple-500/20': selectedNode()?.type === 'subnet',
-              'text-amber-400 bg-amber-500/10 border-amber-500/20': selectedNode()?.type === 'bucket',
-              'text-pink-400 bg-pink-500/10 border-pink-500/20': selectedNode()?.type === 'gateway'
+              'text-blue-400 bg-blue-500/10 border-blue-500/20': selectedNode()?.type === 'domain' || selectedNode()?.type === 'schema',
+              'text-cyan-400 bg-cyan-500/10 border-cyan-500/20': selectedNode()?.type === 'microservice' || selectedNode()?.type === 'springboot' || selectedNode()?.type === 'connector',
+              'text-emerald-400 bg-emerald-500/10 border-emerald-500/20': selectedNode()?.type === 'database' || selectedNode()?.type === 'aurora' || selectedNode()?.type === 'opensearch',
+              'text-purple-400 bg-purple-500/10 border-purple-500/20': selectedNode()?.type === 'subnet' || selectedNode()?.type === 'kafka',
+              'text-amber-400 bg-amber-500/10 border-amber-500/20': selectedNode()?.type === 'bucket' || selectedNode()?.type === 'folder',
+              'text-pink-400 bg-pink-500/10 border-pink-500/20': selectedNode()?.type === 'gateway' || selectedNode()?.type === 'lambda' || selectedNode()?.type === 'table'
             }"
             class="flex items-center justify-center p-2 rounded-xl border"
           >

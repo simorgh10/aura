@@ -11,12 +11,12 @@ import { IconComponent } from '../icon/icon.component';
   template: `
     <div 
       [ngClass]="{
-        'border-blue-500/20 shadow-blue-900/10': node().type === 'domain',
-        'border-cyan-500/25': node().type === 'microservice',
-        'border-emerald-500/25': node().type === 'database',
-        'border-purple-500/25': node().type === 'subnet',
-        'border-amber-500/25': node().type === 'bucket',
-        'border-pink-500/25': node().type === 'gateway',
+        'border-blue-500/20 shadow-blue-900/10': node().type === 'domain' || node().type === 'schema',
+        'border-cyan-500/25': node().type === 'microservice' || node().type === 'springboot' || node().type === 'connector',
+        'border-emerald-500/25': node().type === 'database' || node().type === 'aurora' || node().type === 'opensearch',
+        'border-purple-500/25': node().type === 'subnet' || node().type === 'kafka',
+        'border-amber-500/25': node().type === 'bucket' || node().type === 'folder',
+        'border-pink-500/25': node().type === 'gateway' || node().type === 'lambda' || node().type === 'table',
         'ring-2 ring-blue-500/80 shadow-[0_0_15px_rgba(59,130,246,0.35)]': isSelected(),
         'cursor-grabbing ring-1 ring-cyan-500/50 scale-[1.01] shadow-2xl z-30 bg-slate-900/45': isDragging(),
         'cursor-grab': !isDragging()
@@ -34,12 +34,12 @@ import { IconComponent } from '../icon/icon.component';
         <div class="flex items-center gap-2 max-w-[80%]">
           <div 
             [ngClass]="{
-              'text-blue-400': node().type === 'domain',
-              'text-cyan-400': node().type === 'microservice',
-              'text-emerald-400': node().type === 'database',
-              'text-purple-400': node().type === 'subnet',
-              'text-amber-400': node().type === 'bucket',
-              'text-pink-400': node().type === 'gateway'
+              'text-blue-400': node().type === 'domain' || node().type === 'schema',
+              'text-cyan-400': node().type === 'microservice' || node().type === 'springboot' || node().type === 'connector',
+              'text-emerald-400': node().type === 'database' || node().type === 'aurora' || node().type === 'opensearch',
+              'text-purple-400': node().type === 'subnet' || node().type === 'kafka',
+              'text-amber-400': node().type === 'bucket' || node().type === 'folder',
+              'text-pink-400': node().type === 'gateway' || node().type === 'lambda' || node().type === 'table'
             }"
             class="flex items-center justify-center p-1.5 rounded-lg bg-slate-800/40 border border-slate-700/30"
           >

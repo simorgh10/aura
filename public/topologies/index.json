@@ -31,6 +31,13 @@
       "description": "High-availability fiber backbones, cellular access gateway nodes, routing rings, and regional switching grids.",
       "type": "leaf",
       "manifest": "/topologies/telecom.yaml"
+    },
+    {
+      "id": "analytics",
+      "name": "Event-Driven Analytics Mesh",
+      "description": "High-throughput telemetry pipes, Kafka event streams, AWS serverless ingest lambda triggers, Aurora schemas, Iceberg lake tables, and OpenSearch query nodes.",
+      "type": "leaf",
+      "manifest": "/topologies/analytics-mesh.yaml"
     }
   ]
 }
