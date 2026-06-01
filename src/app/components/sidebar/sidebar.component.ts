@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { TopologyStore } from '../../store/topology.store';
 import { IconComponent } from '../icon/icon.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { PropertyResolverService } from '../../services/property-resolver.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -97,6 +98,7 @@ export class SidebarComponent {
   private store = inject(TopologyStore);
   private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
+  private resolver = inject(PropertyResolverService);
 
   readonly typeConfig = computed(() => {
     const node = this.selectedNode();
@@ -121,14 +123,25 @@ export class SidebarComponent {
   });
 
   loadingDoc = signal(false);
-  docHtml = signal<SafeHtml | null>(null);
+  rawMarkdown = signal<string | null>(null);
+
+  docHtml = computed(() => {
+    const markdown = this.rawMarkdown();
+    if (!markdown) return null;
+
+    const activeProfile = this.store.activeProfile();
+    const props = activeProfile?.props || {};
+    const resolvedMarkdown = this.resolver.resolveString(markdown, props);
+    const rawHtml = this.renderMarkdown(resolvedMarkdown);
+    return this.sanitizer.bypassSecurityTrustHtml(rawHtml);
+  });
 
   constructor() {
     // Reactive Watcher: triggers fetching documentation when the selectedNode changes
     effect(() => {
       const node = this.selectedNode();
       if (!node) {
-        this.docHtml.set(null);
+        this.rawMarkdown.set(null);
         return;
       }
 
@@ -136,18 +149,17 @@ export class SidebarComponent {
         this.loadingDoc.set(true);
         this.http.get(node.docs, { responseType: 'text' }).subscribe({
           next: (markdown) => {
-            const rawHtml = this.renderMarkdown(markdown);
-            this.docHtml.set(this.sanitizer.bypassSecurityTrustHtml(rawHtml));
+            this.rawMarkdown.set(markdown);
             this.loadingDoc.set(false);
           },
           error: (err) => {
             console.error('Failed to load markdown documentation', err);
-            this.docHtml.set(null);
+            this.rawMarkdown.set(null);
             this.loadingDoc.set(false);
           }
         });
       } else {
-        this.docHtml.set(null);
+        this.rawMarkdown.set(null);
       }
     });
   }

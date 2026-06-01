@@ -8,7 +8,9 @@ The **Order API Service** is a high-performance, stateless RESTful service built
 - `DELETE /v1/orders/{id}` - Cancels a pending order if not already processed.
 
 ### Dynamic Profile Specs
-- **Kubernetes Pod Configuration:** Deployed with `3 replicas` in environment clusters.
+- **Environment Context:** Active target environment is **${env}**.
+- **Kubernetes Cluster:** Running workloads on cluster **${k8s_cluster}**.
+- **Repository Integration:** Code base managed at **${gitlab_base}/order-api**.
 - **Resource Allocations:**
   - CPU Limits: `1000m`
   - Memory Limits: `2Gi`
