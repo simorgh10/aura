@@ -20,10 +20,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
     <!-- Slide-over Pane -->
     <div 
       [ngClass]="selectedNode() ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'"
-      class="absolute top-0 right-0 h-full w-[440px] z-50 glass-panel border-l border-slate-200/5 shadow-2xl flex flex-col drawer-transition select-none"
+      class="absolute top-0 right-0 h-full w-[440px] z-50 glass-panel border-l border-[var(--border-glass)] shadow-2xl flex flex-col drawer-transition select-none"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-5 border-b border-slate-800/80 bg-slate-950/20 select-none">
+      <div class="flex items-center justify-between px-6 py-5 border-b border-[var(--border-node-split)] bg-[var(--bg-node-header)] select-none">
         <div class="flex items-center gap-3">
           <div 
             [class]="typeConfig()?.badge_css || 'bg-slate-800/40 border-slate-700/30 text-slate-300'"
@@ -32,10 +32,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
             <app-icon [name]="iconName()" [size]="18"></app-icon>
           </div>
           <div>
-            <h2 class="text-base font-bold text-slate-100 tracking-tight leading-none">
+            <h2 class="text-base font-bold text-[var(--text-main)] tracking-tight leading-none">
               {{ selectedNode()?.name }}
             </h2>
-            <span class="text-[10px] uppercase font-semibold text-slate-500 tracking-wider mt-1 block">
+            <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)] tracking-wider mt-1 block">
               {{ selectedNode()?.type }} Entity Description
             </span>
           </div>

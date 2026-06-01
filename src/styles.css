@@ -6,13 +6,22 @@
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Harmonious Dark Palette */
+  /* Harmonious Dark Palette defaults */
   --bg-canvas: #060a13;
   --bg-panel: rgba(10, 18, 36, 0.75);
   --bg-card: #0d1527;
   --bg-card-hover: #14203a;
   --border-glass: rgba(255, 255, 255, 0.06);
   --border-glass-active: rgba(59, 130, 246, 0.3);
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --grid-dot: rgba(255, 255, 255, 0.05);
+
+  /* Component Node Box backgrounds & splits (Dark defaults) */
+  --bg-node-header: rgba(15, 23, 42, 0.35);
+  --bg-node-body: rgba(2, 6, 23, 0.2);
+  --bg-node-footer: rgba(2, 6, 23, 0.3);
+  --border-node-split: rgba(15, 23, 42, 0.08);
 
   /* Vivid Architectural Type Colors */
   --color-domain: #3b82f6;       /* Blue */
@@ -28,11 +37,44 @@
   --glow-emerald: 0 0 20px rgba(16, 185, 129, 0.25);
 }
 
+.light {
+  /* Harmonious Light Palette */
+  --bg-canvas: #f8fafc;
+  --bg-panel: rgba(255, 255, 255, 0.85);
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --border-glass-active: rgba(59, 130, 246, 0.5);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --grid-dot: rgba(15, 23, 42, 0.07);
+
+  /* Component Node Box backgrounds & splits (Light mode) */
+  --bg-node-header: rgba(15, 23, 42, 0.04);
+  --bg-node-body: rgba(15, 23, 42, 0.02);
+  --bg-node-footer: rgba(15, 23, 42, 0.04);
+  --border-node-split: rgba(15, 23, 42, 0.06);
+
+  /* Accessible type colors for light contrasts */
+  --color-domain: #2563eb;
+  --color-microservice: #0891b2;
+  --color-database: #059669;
+  --color-subnet: #7c3aed;
+  --color-bucket: #d97706;
+  --color-gateway: #db2777;
+
+  /* Utility glows for light mode */
+  --glow-blue: 0 4px 15px rgba(59, 130, 246, 0.15);
+  --glow-cyan: 0 4px 15px rgba(6, 182, 212, 0.15);
+  --glow-emerald: 0 4px 15px rgba(16, 185, 129, 0.15);
+}
+
 /* Base resets & typography */
 body {
   font-family: var(--font-body);
   background-color: var(--bg-canvas);
-  color: #f1f5f9;
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -46,27 +88,26 @@ h1, h2, h3, h4, h5, h6 {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-glass);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .glass-card {
-  background: rgba(13, 21, 39, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--bg-card);
   border: 1px solid var(--border-glass);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  background: rgba(20, 32, 58, 0.85);
+  background: var(--bg-card-hover);
   border-color: var(--border-glass-active);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), var(--glow-blue);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), var(--glow-blue);
   transform: translateY(-2px);
 }
 
 /* Canvas Grid Background */
 .canvas-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1.5px, transparent 1.5px);
+  background-image: radial-gradient(var(--grid-dot) 1.5px, transparent 1.5px);
   background-size: 30px 30px;
 }
 
@@ -101,7 +142,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #0f172a;
+  background: var(--bg-card);
   border: 2px solid var(--color-microservice);
   transition: all 0.2s ease;
 }
@@ -120,19 +161,45 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(10, 18, 36, 0.1);
+  background: rgba(10, 18, 36, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--text-muted);
+  opacity: 0.2;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  opacity: 0.4;
 }
 
 /* Lateral Drawer Animation */
 .drawer-transition {
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Sidebar Markdown Article Styling overrides for dynamic theme synchronization */
+article.prose-invert {
+  color: var(--text-muted) !important;
+}
+
+article.prose-invert h1,
+article.prose-invert h2,
+article.prose-invert h3,
+article.prose-invert h4 {
+  color: var(--text-main) !important;
+  border-color: var(--border-glass) !important;
+}
+
+article.prose-invert ul,
+article.prose-invert li,
+article.prose-invert p {
+  color: var(--text-muted) !important;
+}
+
+article.prose-invert pre {
+  background-color: var(--bg-node-body) !important;
+  border-color: var(--border-glass) !important;
+  color: var(--color-microservice) !important;
 }

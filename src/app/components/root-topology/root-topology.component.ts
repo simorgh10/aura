@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, computed, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -18,9 +18,18 @@ import { IconComponent } from '../icon/icon.component';
   template: `
     <div class="h-full w-full relative select-none">
       
+      <!-- Floating Global Theme Toggle -->
+      <button 
+        (click)="store.toggleTheme()"
+        class="absolute top-6 right-6 z-40 p-2.5 rounded-xl glass-panel border border-[var(--border-glass)] text-slate-400 hover:text-[var(--text-main)] hover:bg-slate-800/40 hover:scale-105 transition-all duration-300 shadow-xl cursor-pointer flex items-center justify-center"
+        [title]="store.theme() === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+      >
+        <app-icon [name]="store.theme() === 'dark' ? 'sun' : 'moon'" [size]="16"></app-icon>
+      </button>
+
       <!-- 1. LOADING OVERLAY VIEW -->
       @if (store.currentViewType() === 'loading') {
-        <div class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-[#060a13]">
+        <div class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-[var(--bg-canvas)]">
           <div class="w-12 h-12 rounded-full border-4 border-slate-800 border-t-blue-500 animate-spin"></div>
           <span class="text-xs font-bold tracking-widest uppercase text-slate-500 font-sans">Resolving Topology Registry...</span>
         </div>
@@ -28,7 +37,7 @@ import { IconComponent } from '../icon/icon.component';
 
       <!-- 2. ERROR OVERLAY VIEW -->
       @if (store.currentViewType() === 'error') {
-        <div class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-[#060a13] px-6">
+        <div class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-[var(--bg-canvas)] px-6">
           <div class="glass-panel border border-red-500/20 rounded-2xl p-6 max-w-md w-full text-center flex flex-col items-center gap-4 shadow-2xl">
             <span class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center shadow-lg">
               <app-icon name="close" [size]="24"></app-icon>
@@ -47,7 +56,7 @@ import { IconComponent } from '../icon/icon.component';
 
       <!-- 3. INDEX LANDING VIEW (Beautiful Card Selection Grid) -->
       @if (store.currentViewType() === 'index') {
-        <div class="w-full h-full overflow-y-auto bg-[#060a13] px-10 py-8 flex flex-col gap-6 select-none custom-scrollbar">
+        <div class="w-full h-full overflow-y-auto bg-[var(--bg-canvas)] px-10 py-8 flex flex-col gap-6 select-none custom-scrollbar">
           
           <!-- Breadcrumbs Trail -->
           <nav class="flex items-center gap-2 select-none">
@@ -221,7 +230,7 @@ import { IconComponent } from '../icon/icon.component';
           <!-- Main Interactive Canvas -->
           <main class="flex-1 h-full relative z-10 select-none">
             @if (store.loading()) {
-              <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-[#060a13]">
+              <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-[var(--bg-canvas)]">
                 <div class="w-12 h-12 rounded-full border-4 border-slate-800 border-t-blue-500 animate-spin"></div>
                 <span class="text-xs font-bold tracking-widest uppercase text-slate-500">Loading Topology Graph...</span>
               </div>
@@ -244,6 +253,17 @@ export class RootTopologyComponent implements OnInit, OnDestroy {
 
   // Signal for left sidebar panel visibility toggle
   readonly leftSidebarExpanded = signal(true);
+
+  constructor() {
+    effect(() => {
+      const theme = this.store.theme();
+      if (theme === 'light') {
+        document.body.classList.add('light');
+      } else {
+        document.body.classList.remove('light');
+      }
+    });
+  }
 
   // Compile active layers based on the loaded manifest
   readonly layers = computed(() => {

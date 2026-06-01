@@ -14,7 +14,7 @@ import { IconComponent } from '../icon/icon.component';
   },
   template: `
     <div 
-      class="relative w-full h-full overflow-hidden bg-[#060a13] select-none"
+      class="relative w-full h-full overflow-hidden bg-[var(--bg-canvas)] select-none"
       (mousedown)="onCanvasMouseDown($event)"
       (mousemove)="onCanvasMouseMove($event)"
       (mouseup)="onCanvasMouseUp($event)"
@@ -73,7 +73,7 @@ import { IconComponent } from '../icon/icon.component';
             markerHeight="5" 
             orient="auto-start-reverse"
           >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6" />
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--color-domain)" />
           </marker>
           <marker 
             id="arrow-async" 
@@ -84,7 +84,7 @@ import { IconComponent } from '../icon/icon.component';
             markerHeight="5" 
             orient="auto-start-reverse"
           >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#06b6d4" />
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--color-microservice)" />
           </marker>
           <marker 
             id="arrow-db" 
@@ -95,7 +95,7 @@ import { IconComponent } from '../icon/icon.component';
             markerHeight="5" 
             orient="auto-start-reverse"
           >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--color-database)" />
           </marker>
         </defs>
 

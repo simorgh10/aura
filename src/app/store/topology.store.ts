@@ -31,6 +31,7 @@ export interface TopologyState {
   currentPathSegments: string[];
   errorMsg: string | null;
   registry: any | null;
+  theme: 'dark' | 'light';
 }
 
 const initialState: TopologyState = {
@@ -50,6 +51,7 @@ const initialState: TopologyState = {
   currentPathSegments: [],
   errorMsg: null,
   registry: null,
+  theme: 'dark',
 };
 
 
@@ -645,6 +647,11 @@ export const TopologyStore = signalStore(
         panY: 100, 
         zoom: 1 
       });
+    },
+
+    toggleTheme() {
+      const next = store.theme() === 'dark' ? 'light' : 'dark';
+      patchState(store, { theme: next });
     },
 
     updateNodeOffset(hierarchyId: string, nodeId: string, dx: number, dy: number) {

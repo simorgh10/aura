@@ -12,7 +12,7 @@ import { IconComponent } from '../icon/icon.component';
     <div 
       [ngClass]="{
         'ring-2 ring-blue-500/80 shadow-[0_0_15px_rgba(59,130,246,0.35)]': isSelected(),
-        'cursor-grabbing ring-1 ring-cyan-500/50 scale-[1.01] shadow-2xl z-30 bg-slate-900/45': isDragging(),
+        'cursor-grabbing ring-1 ring-cyan-500/50 scale-[1.01] shadow-2xl z-30 bg-[var(--bg-card-hover)]': isDragging(),
         'cursor-grab': !isDragging()
       }"
       [ngStyle]="nodeStyle()"
@@ -23,7 +23,7 @@ import { IconComponent } from '../icon/icon.component';
       <!-- Header Area -->
       <div 
         [class.border-b]="node().isLeaf || !node().isExpanded"
-        class="flex items-center justify-between px-3.5 py-2.5 bg-slate-900/35 border-slate-200/5 select-none"
+        class="flex items-center justify-between px-3.5 py-2.5 bg-[var(--bg-node-header)] border-[var(--border-glass)] select-none"
       >
         <div class="flex items-center gap-2 max-w-[80%]">
           <div 
@@ -32,7 +32,7 @@ import { IconComponent } from '../icon/icon.component';
           >
             <app-icon [name]="iconName()" [size]="15"></app-icon>
           </div>
-          <span class="font-semibold text-sm text-slate-100 font-sans tracking-tight truncate">
+          <span class="font-semibold text-sm text-[var(--text-main)] font-sans tracking-tight truncate">
             {{ node().name }}
           </span>
         </div>
@@ -54,7 +54,7 @@ import { IconComponent } from '../icon/icon.component';
 
       <!-- Body / Container Placeholder (renders when expanded) -->
       @if (!node().isLeaf && node().isExpanded) {
-        <div class="flex-1 flex flex-col px-4 pt-10 pb-4 border-t border-slate-800/50 bg-slate-950/20 select-none">
+        <div class="flex-1 flex flex-col px-4 pt-10 pb-4 border-t border-[var(--border-node-split)] bg-[var(--bg-node-body)] select-none">
           @if (node().childrenIds.length === 0) {
             <div class="text-[10px] uppercase font-bold tracking-widest text-slate-500 mb-2">
               Encapsulated Entities
@@ -68,7 +68,7 @@ import { IconComponent } from '../icon/icon.component';
         </div>
       } @else {
         <div class="flex-1 px-4 py-3 flex flex-col justify-between select-none">
-          <span class="text-[11px] text-slate-400 leading-normal font-sans line-clamp-2" [title]="node().description || ''">
+          <span class="text-[11px] text-[var(--text-muted)] leading-normal font-sans line-clamp-2" [title]="node().description || ''">
             {{ node().description || (node().type | uppercase) + ' Component node connected via port interfaces. Click to view documentation.' }}
           </span>
         </div>
@@ -76,7 +76,7 @@ import { IconComponent } from '../icon/icon.component';
 
       <!-- Footer Area with Links -->
       @if (node().links && node().links!.length > 0 && (node().isLeaf || !node().isExpanded)) {
-        <div class="px-3.5 py-2 bg-slate-950/30 border-t border-slate-200/5 flex items-center justify-end gap-2.5 select-none">
+        <div class="px-3.5 py-2 bg-[var(--bg-node-footer)] border-t border-[var(--border-node-split)] flex items-center justify-end gap-2.5 select-none">
           @for (link of node().links; track link.url) {
             <a 
               [href]="link.url" 
