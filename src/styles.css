@@ -23,6 +23,18 @@
   --bg-node-footer: rgba(2, 6, 23, 0.3);
   --border-node-split: rgba(15, 23, 42, 0.08);
 
+  /* High-Contrast Control Sidebar menu buttons (Dark defaults) */
+  --bg-menu-btn: rgba(15, 23, 42, 0.4);
+  --border-menu-btn: rgba(15, 23, 42, 0.8);
+  --text-menu-btn: #94a3b8;
+  --text-menu-btn-hover: #f1f5f9;
+  --bg-menu-active-blue: rgba(59, 130, 246, 0.15);
+  --border-menu-active-blue: rgba(59, 130, 246, 0.35);
+  --text-menu-active-blue: #93c5fd;
+  --bg-menu-active-cyan: rgba(6, 182, 212, 0.15);
+  --border-menu-active-cyan: rgba(6, 182, 212, 0.35);
+  --text-menu-active-cyan: #67e8f9;
+
   /* Vivid Architectural Type Colors */
   --color-domain: #3b82f6;       /* Blue */
   --color-microservice: #06b6d4; /* Cyan */
@@ -54,6 +66,18 @@
   --bg-node-body: rgba(15, 23, 42, 0.02);
   --bg-node-footer: rgba(15, 23, 42, 0.04);
   --border-node-split: rgba(15, 23, 42, 0.06);
+
+  /* High-Contrast Control Sidebar menu buttons (Light overrides) */
+  --bg-menu-btn: rgba(255, 255, 255, 0.85);
+  --border-menu-btn: rgba(15, 23, 42, 0.12);
+  --text-menu-btn: #475569;
+  --text-menu-btn-hover: #0f172a;
+  --bg-menu-active-blue: rgba(37, 99, 235, 0.1);
+  --border-menu-active-blue: rgba(37, 99, 235, 0.35);
+  --text-menu-active-blue: #1d4ed8;
+  --bg-menu-active-cyan: rgba(8, 145, 178, 0.1);
+  --border-menu-active-cyan: rgba(8, 145, 178, 0.35);
+  --text-menu-active-cyan: #0369a1;
 
   /* Accessible type colors for light contrasts */
   --color-domain: #2563eb;

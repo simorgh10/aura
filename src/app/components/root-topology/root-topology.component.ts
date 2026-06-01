@@ -151,43 +151,43 @@ import { IconComponent } from '../icon/icon.component';
           <!-- Left Controls Sidebar -->
           <aside 
             [ngClass]="leftSidebarExpanded() ? 'translate-x-0 opacity-100 pointer-events-auto' : '-translate-x-[calc(100%+24px)] opacity-0 pointer-events-none'"
-            class="absolute top-20 left-6 z-30 w-64 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar glass-panel border border-slate-200/5 rounded-2xl p-4 flex flex-col gap-5 select-none transition-all duration-300 ease-in-out shadow-2xl"
+            class="absolute top-20 left-6 z-30 w-64 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar glass-panel border border-[var(--border-glass)] rounded-2xl p-4 flex flex-col gap-5 select-none transition-all duration-300 ease-in-out shadow-2xl"
           >
             <!-- Perspective Views Picker -->
             <div class="flex flex-col gap-2">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 select-none">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1 select-none font-sans">
                 Perspective Views
               </div>
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-1.5 font-sans">
                 @for (h of store.manifest()?.hierarchies; track h.id) {
                   <button
                     (click)="store.setActiveHierarchy(h.id)"
-                    [ngClass]="store.activeHierarchyId() === h.id ? 'bg-blue-600/15 border-blue-500/35 text-blue-300 shadow-[inset_0_0_12px_rgba(59,130,246,0.1)]' : 'bg-slate-900/35 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'"
-                    class="w-full text-left px-3.5 py-2.5 rounded-xl border font-sans text-xs font-semibold tracking-wide transition-all duration-200 flex items-center justify-between cursor-pointer"
+                    [ngClass]="store.activeHierarchyId() === h.id ? 'bg-[var(--bg-menu-active-blue)] border-[var(--border-menu-active-blue)] text-[var(--text-menu-active-blue)] shadow-[inset_0_0_12px_rgba(59,130,246,0.05)] font-bold' : 'bg-[var(--bg-menu-btn)] border-[var(--border-menu-btn)] text-[var(--text-menu-btn)] hover:text-[var(--text-menu-btn-hover)] hover:bg-[var(--bg-card-hover)] font-medium'"
+                    class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs tracking-wide transition-all duration-200 flex items-center justify-between cursor-pointer"
                   >
                     <span>{{ h.name }}</span>
                     @if (store.activeHierarchyId() === h.id) {
-                      <span class="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_#3b82f6]"></span>
+                      <span class="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
                     }
                   </button>
                 }
               </div>
             </div>
 
-            <hr class="border-slate-800/60">
+            <hr class="border-[var(--border-glass)] opacity-60">
 
             <!-- Environment Profiles Selector -->
             @if (store.activeHierarchy()?.profiles && store.activeHierarchy()!.profiles!.length > 0) {
-              <div class="flex flex-col gap-2">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              <div class="flex flex-col gap-2 font-sans">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
                   Environment Profile
                 </div>
                 <div class="grid grid-cols-2 gap-1.5">
                   @for (p of store.activeHierarchy()?.profiles; track p.id) {
                     <button
                       (click)="store.setActiveProfile(p.id)"
-                      [ngClass]="store.activeProfileId() === p.id ? 'bg-cyan-600/15 border-cyan-500/35 text-cyan-300 shadow-[inset_0_0_12px_rgba(6,182,212,0.1)]' : 'bg-slate-900/35 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'"
-                      class="px-2.5 py-2 rounded-xl border font-sans text-[11px] font-bold tracking-wider uppercase transition-all duration-200 text-center cursor-pointer"
+                      [ngClass]="store.activeProfileId() === p.id ? 'bg-[var(--bg-menu-active-cyan)] border-[var(--border-menu-active-cyan)] text-[var(--text-menu-active-cyan)] shadow-[inset_0_0_12px_rgba(6,182,212,0.05)] font-bold' : 'bg-[var(--bg-menu-btn)] border-[var(--border-menu-btn)] text-[var(--text-menu-btn)] hover:text-[var(--text-menu-btn-hover)] hover:bg-[var(--bg-card-hover)] font-medium'"
+                      class="px-2.5 py-2 rounded-xl border text-[11px] tracking-wider uppercase transition-all duration-200 text-center cursor-pointer"
                     >
                       {{ p.id }}
                     </button>
@@ -195,27 +195,27 @@ import { IconComponent } from '../icon/icon.component';
                 </div>
               </div>
 
-              <hr class="border-slate-800/60">
+              <hr class="border-[var(--border-glass)] opacity-60">
             }
 
             <!-- Layer Toggles -->
-            <div class="flex flex-col gap-2.5">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 select-none">
+            <div class="flex flex-col gap-2.5 font-sans">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1 select-none">
                 Component Layers
               </div>
               <div class="flex flex-col gap-1.5">
                 @for (layer of layers(); track layer) {
-                  <div class="flex items-center justify-between bg-slate-900/25 border border-slate-800/40 rounded-xl px-3 py-2 text-xs">
+                  <div class="flex items-center justify-between bg-[var(--bg-menu-btn)] border border-[var(--border-menu-btn)] rounded-xl px-3 py-2 text-xs transition-colors duration-200">
                     <div class="flex items-center gap-2 select-none">
                       <span 
                         [class]="store.manifest()?.types?.components?.[layer]?.badge_css || 'bg-slate-800/20 text-slate-400'"
                         class="w-2.5 h-2.5 rounded-full"
                       ></span>
-                      <span class="capitalize text-slate-300 font-medium font-sans select-none">{{ layer }}</span>
+                      <span class="capitalize text-[var(--text-menu-btn-hover)] font-medium select-none">{{ layer }}</span>
                     </div>
                     <button 
                       (click)="store.toggleLayerVisibility(layer)"
-                      [ngClass]="store.hiddenLayers().includes(layer) ? 'text-slate-600 hover:text-slate-400' : 'text-cyan-400 hover:text-cyan-300'"
+                      [ngClass]="store.hiddenLayers().includes(layer) ? 'text-slate-400 hover:text-[var(--text-menu-btn-hover)]' : 'text-[var(--color-microservice)] hover:text-[var(--text-menu-btn-hover)]'"
                       class="p-1 rounded transition-colors cursor-pointer"
                       [title]="store.hiddenLayers().includes(layer) ? 'Show Layer' : 'Hide Layer'"
                     >
