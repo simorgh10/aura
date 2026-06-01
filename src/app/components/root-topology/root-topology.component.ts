@@ -199,14 +199,7 @@ import { IconComponent } from '../icon/icon.component';
                   <div class="flex items-center justify-between bg-slate-900/25 border border-slate-800/40 rounded-xl px-3 py-2 text-xs">
                     <div class="flex items-center gap-2 select-none">
                       <span 
-                        [ngClass]="{
-                          'bg-blue-500/20 text-blue-400': layer === 'domain' || layer === 'schema',
-                          'bg-cyan-500/20 text-cyan-400': layer === 'microservice' || layer === 'springboot' || layer === 'connector',
-                          'bg-emerald-500/20 text-emerald-400': layer === 'database' || layer === 'aurora' || layer === 'opensearch',
-                          'bg-purple-500/20 text-purple-400': layer === 'subnet' || layer === 'kafka',
-                          'bg-amber-500/20 text-amber-400': layer === 'bucket' || layer === 'folder',
-                          'bg-pink-500/20 text-pink-400': layer === 'gateway' || layer === 'lambda' || layer === 'table'
-                        }"
+                        [class]="store.manifest()?.types?.components?.[layer]?.badge_css || 'bg-slate-800/20 text-slate-400'"
                         class="w-2.5 h-2.5 rounded-full"
                       ></span>
                       <span class="capitalize text-slate-300 font-medium font-sans select-none">{{ layer }}</span>

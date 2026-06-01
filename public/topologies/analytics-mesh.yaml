@@ -4,39 +4,63 @@ types:
   components:
     domain:
       icon: "layout"
+      color: "var(--color-domain)"
+      badge_css: "bg-blue-500/10 text-blue-400 border-blue-500/20"
       css: { "border-color": "var(--color-domain)", "background-color": "rgba(59, 130, 246, 0.03)" }
     springboot:
       icon: "cpu"
+      color: "var(--color-microservice)"
+      badge_css: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20"
       css: { "border-color": "var(--color-microservice)", "background-color": "rgba(6, 182, 212, 0.05)" }
     kafka:
       icon: "message-square"
+      color: "var(--color-subnet)"
+      badge_css: "bg-purple-500/10 text-purple-400 border-purple-500/20"
       css: { "border-color": "var(--color-subnet)", "background-color": "rgba(139, 92, 246, 0.05)" }
     aurora:
       icon: "database"
+      color: "var(--color-database)"
+      badge_css: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
       css: { "border-color": "var(--color-database)", "background-color": "rgba(16, 185, 129, 0.05)" }
     schema:
       icon: "layers"
+      color: "var(--color-domain)"
+      badge_css: "bg-blue-500/10 text-blue-400 border-blue-500/20"
       css: { "border-color": "var(--color-domain)", "background-color": "rgba(59, 130, 246, 0.03)" }
     table:
       icon: "table"
+      color: "var(--color-gateway)"
+      badge_css: "bg-pink-500/10 text-pink-400 border-pink-500/20"
       css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.05)" }
     lambda:
       icon: "zap"
+      color: "var(--color-gateway)"
+      badge_css: "bg-pink-500/10 text-pink-400 border-pink-500/20"
       css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.05)" }
     eventbridge:
       icon: "zap"
+      color: "var(--color-gateway)"
+      badge_css: "bg-pink-500/10 text-pink-400 border-pink-500/20"
       css: { "border-color": "var(--color-gateway)", "background-color": "rgba(236, 72, 153, 0.03)" }
     bucket:
       icon: "archive"
+      color: "var(--color-bucket)"
+      badge_css: "bg-amber-500/10 text-amber-400 border-amber-500/20"
       css: { "border-color": "var(--color-bucket)", "background-color": "rgba(245, 158, 11, 0.05)" }
     folder:
       icon: "folder"
+      color: "var(--color-bucket)"
+      badge_css: "bg-amber-500/10 text-amber-400 border-amber-500/20"
       css: { "border-color": "var(--color-bucket)", "background-color": "rgba(245, 158, 11, 0.03)" }
     connector:
       icon: "message-square"
+      color: "var(--color-microservice)"
+      badge_css: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20"
       css: { "border-color": "var(--color-microservice)", "background-color": "rgba(6, 182, 212, 0.03)" }
     opensearch:
       icon: "search"
+      color: "var(--color-database)"
+      badge_css: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
       css: { "border-color": "var(--color-database)", "background-color": "rgba(16, 185, 129, 0.05)" }
   edges:
     async:

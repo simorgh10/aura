@@ -1,5 +1,7 @@
 export interface ComponentTypeConfig {
   icon: string;
+  color?: string;
+  badge_css?: string;
   css?: Record<string, string>;
 }
 

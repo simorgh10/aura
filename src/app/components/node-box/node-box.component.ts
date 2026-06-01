@@ -11,17 +11,11 @@ import { IconComponent } from '../icon/icon.component';
   template: `
     <div 
       [ngClass]="{
-        'border-blue-500/20 shadow-blue-900/10': node().type === 'domain' || node().type === 'schema',
-        'border-cyan-500/25': node().type === 'microservice' || node().type === 'springboot' || node().type === 'connector',
-        'border-emerald-500/25': node().type === 'database' || node().type === 'aurora' || node().type === 'opensearch',
-        'border-purple-500/25': node().type === 'subnet' || node().type === 'kafka',
-        'border-amber-500/25': node().type === 'bucket' || node().type === 'folder',
-        'border-pink-500/25': node().type === 'gateway' || node().type === 'lambda' || node().type === 'table',
         'ring-2 ring-blue-500/80 shadow-[0_0_15px_rgba(59,130,246,0.35)]': isSelected(),
         'cursor-grabbing ring-1 ring-cyan-500/50 scale-[1.01] shadow-2xl z-30 bg-slate-900/45': isDragging(),
         'cursor-grab': !isDragging()
       }"
-      [ngStyle]="node().css"
+      [ngStyle]="nodeStyle()"
       (mousedown)="onMouseDown($event)"
       (click)="selectNode($event)"
       class="w-full h-full glass-card rounded-xl border flex flex-col overflow-hidden select-none relative"
@@ -33,14 +27,7 @@ import { IconComponent } from '../icon/icon.component';
       >
         <div class="flex items-center gap-2 max-w-[80%]">
           <div 
-            [ngClass]="{
-              'text-blue-400': node().type === 'domain' || node().type === 'schema',
-              'text-cyan-400': node().type === 'microservice' || node().type === 'springboot' || node().type === 'connector',
-              'text-emerald-400': node().type === 'database' || node().type === 'aurora' || node().type === 'opensearch',
-              'text-purple-400': node().type === 'subnet' || node().type === 'kafka',
-              'text-amber-400': node().type === 'bucket' || node().type === 'folder',
-              'text-pink-400': node().type === 'gateway' || node().type === 'lambda' || node().type === 'table'
-            }"
+            [style.color]="typeConfig()?.color || 'var(--color-microservice)'"
             class="flex items-center justify-center p-1.5 rounded-lg bg-slate-800/40 border border-slate-700/30"
           >
             <app-icon [name]="iconName()" [size]="15"></app-icon>
@@ -132,22 +119,21 @@ export class NodeBoxComponent {
   isDragging = signal(false);
   private dragged = false;
 
-  iconName = computed(() => {
+  readonly typeConfig = computed(() => {
     const type = this.node().type;
     const manifest = this.store.manifest();
-    if (manifest && manifest.types.components[type]) {
-      return manifest.types.components[type].icon;
-    }
-    
-    // Fallbacks
-    switch (type) {
-      case 'domain': return 'layout';
-      case 'microservice': return 'cpu';
-      case 'database': return 'database';
-      case 'bucket': return 'archive';
-      case 'gateway': return 'globe';
-      default: return 'cpu';
-    }
+    return manifest?.types.components[type] || null;
+  });
+
+  readonly nodeStyle = computed(() => {
+    return {
+      ...(this.typeConfig()?.css || {}),
+      ...(this.node().css || {})
+    };
+  });
+
+  readonly iconName = computed(() => {
+    return this.typeConfig()?.icon || 'cpu';
   });
 
   toggleExpand(event: MouseEvent) {
