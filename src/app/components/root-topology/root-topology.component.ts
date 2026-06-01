@@ -142,7 +142,7 @@ import { IconComponent } from '../icon/icon.component';
           <!-- Left Controls Sidebar -->
           <aside 
             [ngClass]="leftSidebarExpanded() ? 'translate-x-0 opacity-100 pointer-events-auto' : '-translate-x-[calc(100%+24px)] opacity-0 pointer-events-none'"
-            class="absolute top-20 left-6 z-30 w-64 glass-panel border border-slate-200/5 rounded-2xl p-4 flex flex-col gap-5 select-none transition-all duration-300 ease-in-out shadow-2xl"
+            class="absolute top-20 left-6 z-30 w-64 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar glass-panel border border-slate-200/5 rounded-2xl p-4 flex flex-col gap-5 select-none transition-all duration-300 ease-in-out shadow-2xl"
           >
             <!-- Perspective Views Picker -->
             <div class="flex flex-col gap-2">
