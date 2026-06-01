@@ -49,5 +49,13 @@ This journal serves as an immutable, chronological record of architectural insig
 ### [2026-05-30] Multiple Topologies & Catch-All Routing
 - **Action Taken:** Developed a dynamic catch-all deep URL routing (`[[...topologypath]]`) system and introduced the concept of an Enterprise Topology Registry mapping indices to sub-directories and leaves.
 - **Architectural Decision:** Configured a wildcard route `**` to load `RootTopologyComponent`. Upgraded `TopologyStore` using sequential `withMethods` blocks to allow dynamic manifest loads via chaining. Traversed the index registry tree dynamically based on URL segments, displaying an elegant, glassmorphic categories landing dashboard (for indexes) or the full interactive canvas (for leaf topologies). Added a premium breadcrumb navigation trail mapping physical route paths to logical node names.
-- **Lesson Learned:** A metadata-driven registry catalog is infinitely superior to pure folder-path crawling. It decouples logical system directories from physical file paths, enables global microsecond searches, and dynamically decorates subdomains with rich cards context, ownership, and statuses before complex visualization assets are fetched.
+### [2026-06-01] Dynamic Styling Externalization (Phase A)
+- **Action Taken:** Extended YAML schemas with color and badge CSS tokens in all manifests and refactored `NodeBoxComponent`, `SidebarComponent`, and `RootTopologyComponent` to dynamically resolve styles.
+- **Architectural Decision:** Replaced all hardcoded, TS-based visual maps with signal-computed CSS injections. Type styling and badge tokens are dynamically resolved at runtime directly from active topology manifest attributes, leaving components completely visual-agnostic.
+- **Lesson Learned:** Moving visualization tokens to the metadata layer drastically simplifies Angular template logic, accelerates compilation, and empowers non-developers to restyle views purely via YAML adjustments.
+
+### [2026-06-01] Diagram-Level Resource Isolation (Phase B)
+- **Action Taken:** Reorganized the file registry structure inside `/public/topologies/` to isolate both YAML schemas and documentation on a per-diagram/leaf folder basis.
+- **Architectural Decision:** Created isolated diagram directories (e.g. `/topologies/checkout/`, `/topologies/analytics/`) containing their specific `manifest.yaml` and local `docs/` sub-directories. Re-mapped all component `docs` attributes to point to `/topologies/[leaf]/docs/[filename].md`, and updated `/public/topologies/index.json`. Created five new high-fidelity, PCI-compliant markdown files for components in the Checkout subsystem. Purged all loose top-level YAML manifests and global `public/docs/` folders.
+- **Lesson Learned:** Transitioning from a shared global pool to a self-contained diagram-level structure prevents cross-diagram leakage and makes each visual sub-system a fully decoupled package that can be added, updated, or removed in absolute safety.
 

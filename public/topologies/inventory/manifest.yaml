@@ -82,7 +82,7 @@ components:
   - id: "warehouse-domain"
     type: "domain"
     name: "Warehouse Ops Subsystem - ${env}"
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/inventory/docs/ordering-domain.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/warehouse" }
     ports: ["in", "out"]
@@ -90,7 +90,7 @@ components:
   - id: "catalog-domain"
     type: "domain"
     name: "Product Catalog Subsystem - ${env}"
-    docs: "/docs/payment-gateway.md"
+    docs: "/topologies/inventory/docs/payment-gateway.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/catalog" }
     ports: ["in", "out"]
@@ -98,7 +98,7 @@ components:
   - id: "warehouse-api"
     type: "microservice"
     name: "Warehouse API Router (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/inventory/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/warehouse-api" }
     ports: ["in", "out", "db"]
@@ -106,7 +106,7 @@ components:
   - id: "stock-tracker"
     type: "microservice"
     name: "Stock Tracker Worker (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/inventory/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/stock-tracker" }
     ports: ["in", "db"]
@@ -114,13 +114,13 @@ components:
   - id: "warehouse-db"
     type: "database"
     name: "Warehouse PostgreSQL DB (${db_host})"
-    docs: "/docs/order-db.md"
+    docs: "/topologies/inventory/docs/order-db.md"
     ports: ["in"]
 
   - id: "catalog-api"
     type: "microservice"
     name: "Product Catalog API (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/inventory/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/catalog-api" }
     ports: ["in", "out", "db"]
@@ -128,13 +128,13 @@ components:
   - id: "media-bucket"
     type: "bucket"
     name: "Catalog Assets Bucket (${bucket_name})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/inventory/docs/order-api.md"
     ports: ["in"]
 
   - id: "catalog-db"
     type: "database"
     name: "Catalog Redis Grid (${db_host})"
-    docs: "/docs/order-db.md"
+    docs: "/topologies/inventory/docs/order-db.md"
     ports: ["in"]
 
 edges:

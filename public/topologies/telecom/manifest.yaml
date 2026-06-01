@@ -52,7 +52,7 @@ components:
   - id: "core-ring-zone"
     type: "domain"
     name: "Core Fiber Backbone Ring - ${env}"
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/telecom/docs/ordering-domain.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/core-ring" }
     ports: ["in", "out"]
@@ -60,7 +60,7 @@ components:
   - id: "edge-access-zone"
     type: "domain"
     name: "Edge Access & Cellular Zone - ${env}"
-    docs: "/docs/payment-gateway.md"
+    docs: "/topologies/telecom/docs/payment-gateway.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/edge-access" }
     ports: ["in", "out"]
@@ -68,7 +68,7 @@ components:
   - id: "east-ring-router"
     type: "gateway"
     name: "East Fiber Ring Router (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/telecom/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/east-router" }
     ports: ["in", "out"]
@@ -76,7 +76,7 @@ components:
   - id: "west-ring-router"
     type: "gateway"
     name: "West Fiber Ring Router (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/telecom/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/west-router" }
     ports: ["in", "out"]
@@ -84,13 +84,13 @@ components:
   - id: "central-switch"
     type: "microservice"
     name: "Central Optical Switch Controller (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/telecom/docs/order-api.md"
     ports: ["in", "out"]
 
   - id: "cell-tower-gateway"
     type: "gateway"
     name: "Cellular Tower Access Gateway (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/telecom/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/cell-gateway" }
     ports: ["in", "out"]
@@ -98,7 +98,7 @@ components:
   - id: "sub-station-switch"
     type: "microservice"
     name: "Regional Substation Switch (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/telecom/docs/order-api.md"
     ports: ["in", "out"]
 
 edges:

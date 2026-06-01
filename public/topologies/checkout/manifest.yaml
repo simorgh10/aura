@@ -88,7 +88,7 @@ components:
   - id: "ordering-domain"
     type: "domain"
     name: "Ordering Subsystem - ${env}"
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/checkout/docs/ordering-domain.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/ordering" }
     ports: ["in", "out"]
@@ -96,7 +96,7 @@ components:
   - id: "order-api"
     type: "microservice"
     name: "Order API Service (${k8s_cluster})"
-    docs: "/docs/order-api.md"
+    docs: "/topologies/checkout/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/order-api" }
       - { type: "confluence", url: "https://wiki.enterprise.com/order-api-design" }
@@ -105,13 +105,13 @@ components:
   - id: "order-db"
     type: "database"
     name: "Order DB (${db_host})"
-    docs: "/docs/order-db.md"
+    docs: "/topologies/checkout/docs/order-db.md"
     ports: ["in"]
 
   - id: "payment-domain"
     type: "domain"
     name: "Payment Gateway System - ${env}"
-    docs: "/docs/payment-domain.md"
+    docs: "/topologies/checkout/docs/payment-domain.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/payment-gateway" }
     ports: ["in", "out"]
@@ -119,7 +119,7 @@ components:
   - id: "payment-gateway"
     type: "gateway"
     name: "Stripe Integrator Core"
-    docs: "/docs/payment-gateway.md"
+    docs: "/topologies/checkout/docs/payment-gateway.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/stripe-integrator" }
     ports: ["in", "out", "db"]
@@ -127,25 +127,25 @@ components:
   - id: "payment-db"
     type: "database"
     name: "Transactions DB"
-    docs: "/docs/payment-db.md"
+    docs: "/topologies/checkout/docs/payment-db.md"
     ports: ["in"]
 
   - id: "shipping-domain"
     type: "domain"
     name: "Fulfillment Subsystem"
-    docs: "/docs/shipping-domain.md"
+    docs: "/topologies/checkout/docs/shipping-domain.md"
     ports: ["in", "out"]
 
   - id: "shipping-worker"
     type: "microservice"
     name: "Shipping Coordinator Worker"
-    docs: "/docs/shipping-worker.md"
+    docs: "/topologies/checkout/docs/shipping-worker.md"
     ports: ["in", "out"]
 
   - id: "shipping-bucket"
     type: "bucket"
     name: "S3 Manifest Storage (${bucket_name})"
-    docs: "/docs/shipping-bucket.md"
+    docs: "/topologies/checkout/docs/shipping-bucket.md"
     ports: ["in"]
 
 edges:

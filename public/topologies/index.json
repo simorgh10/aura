@@ -14,14 +14,14 @@
           "name": "Checkout & Payments System",
           "description": "Interactive visual map of customer checkouts, Stripe external gateways, and S3 manifest state registers.",
           "type": "leaf",
-          "manifest": "/topology.yaml"
+          "manifest": "/topologies/checkout/manifest.yaml"
         },
         {
           "id": "inventory",
           "name": "Inventory & Warehouse Services",
           "description": "Active tracking systems, warehouse database registers, stock catalogs, and supplier logistics feeds.",
           "type": "leaf",
-          "manifest": "/topologies/inventory.yaml"
+          "manifest": "/topologies/inventory/manifest.yaml"
         }
       ]
     },
@@ -30,14 +30,14 @@
       "name": "Telecom Backbone Infrastructure",
       "description": "High-availability fiber backbones, cellular access gateway nodes, routing rings, and regional switching grids.",
       "type": "leaf",
-      "manifest": "/topologies/telecom.yaml"
+      "manifest": "/topologies/telecom/manifest.yaml"
     },
     {
       "id": "analytics",
       "name": "Event-Driven Analytics Mesh",
       "description": "High-throughput telemetry pipes, Kafka event streams, AWS serverless ingest lambda triggers, Aurora schemas, Iceberg lake tables, and OpenSearch query nodes.",
       "type": "leaf",
-      "manifest": "/topologies/analytics-mesh.yaml"
+      "manifest": "/topologies/analytics/manifest.yaml"
     }
   ]
 }

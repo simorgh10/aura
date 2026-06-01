@@ -157,7 +157,7 @@ components:
     type: "springboot"
     name: "Ingestion API Processor (${env})"
     description: "Receives raw user metrics and publishes parallel streams to Kafka raw and payment status topics."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/ingestion-api" }
       - { type: "confluence", url: "https://confluence.enterprise.com/display/TELEMETRY/Ingestion+API+Processor" }
@@ -167,7 +167,7 @@ components:
     type: "springboot"
     name: "Ingest & Metrics Aggregator (${env})"
     description: "Runs two ingestions: persists raw telemetry to billing invoices, and aggregates multi-schema database states."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/analytics-engine" }
       - { type: "confluence", url: "https://confluence.enterprise.com/display/TELEMETRY/Ingest+and+Metrics+Aggregator" }
@@ -177,7 +177,7 @@ components:
     type: "springboot"
     name: "BI Reporting Hub (${env})"
     description: "Consumes enriched streams and ingests data directly into three Iceberg tables backed by S3 warehouse storage."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     links:
       - { type: "gitlab", url: "${gitlab_base}/reporting-hub" }
       - { type: "confluence", url: "https://confluence.enterprise.com/display/TELEMETRY/BI+Reporting+Hub" }
@@ -188,21 +188,21 @@ components:
     type: "kafka"
     name: "kafka: telemetry.raw.events"
     description: "Ingestion pipeline queue containing raw telemetry reports and page tracking logs."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     ports: ["in", "out"]
 
   - id: "payment-events-topic"
     type: "kafka"
     name: "kafka: payment.status.events"
     description: "Transactional messaging topic recording real-time client Stripe purchase checkouts."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     ports: ["in", "out"]
 
   - id: "analytics-enriched-topic"
     type: "kafka"
     name: "kafka: analytics.enriched.events"
     description: "Highly enriched data pipeline containing compiled multi-schema telemetry aggregates."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     ports: ["in", "out"]
 
   # Aurora DB (with multi-schema and table encapsulation)
@@ -210,35 +210,35 @@ components:
     type: "aurora"
     name: "Aurora PostgreSQL DB Cluster (${db_host})"
     description: "Multi-AZ transactional relational engine containing segregated billing and general ledger schemas."
-    docs: "/docs/order-db.md"
+    docs: "/topologies/analytics/docs/order-db.md"
     ports: ["in", "out"]
 
   - id: "billing-schema"
     type: "schema"
     name: "Schema: billing_schema"
     description: "Logical database partition isolating receipt indexes, invoicing details, and payments."
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/analytics/docs/ordering-domain.md"
     ports: ["in", "out"]
 
   - id: "invoices-table"
     type: "table"
     name: "Table: invoices_t"
     description: "Stores invoicing states. Written by Ingestion 1, read by Ingestion 2."
-    docs: "/docs/order-db.md"
+    docs: "/topologies/analytics/docs/order-db.md"
     ports: ["in", "out"]
 
   - id: "ledger-schema"
     type: "schema"
     name: "Schema: ledger_schema"
     description: "Logical database partition containing financial ledgers, audit registers, and journal trails."
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/analytics/docs/ordering-domain.md"
     ports: ["in", "out"]
 
   - id: "ledger-table"
     type: "table"
     name: "Table: ledger_t"
     description: "Financial ledger catalog. Written by serverless AWS Lambdas, read by Ingestion 2."
-    docs: "/docs/order-db.md"
+    docs: "/topologies/analytics/docs/order-db.md"
     ports: ["in", "out"]
 
   # AWS Lambda & EventBridge
@@ -246,14 +246,14 @@ components:
     type: "eventbridge"
     name: "EventBridge Event Bus Trigger"
     description: "AWS cloud event bus orchestrating event routing for serverless SaaS states."
-    docs: "/docs/payment-gateway.md"
+    docs: "/topologies/analytics/docs/payment-gateway.md"
     ports: ["out"]
 
   - id: "ingest-lambda"
     type: "lambda"
     name: "Ledger Ingest Lambda"
     description: "Serverless lambda executing upon state triggers and writing audit entries directly to Aurora databases."
-    docs: "/docs/payment-gateway.md"
+    docs: "/topologies/analytics/docs/payment-gateway.md"
     ports: ["in", "out"]
 
   # S3 Buckets, S3 Folders, and Data Objects
@@ -261,21 +261,21 @@ components:
     type: "bucket"
     name: "S3 Bucket: datalake-s3 (${bucket_name})"
     description: "Unified corporate object store housing active CSV backups and Iceberg query tables."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     ports: ["in", "out"]
 
   - id: "raw-stage-folder"
     type: "folder"
     name: "Folder: /raw-stage/"
     description: "Datalake staging subdirectory storing raw, partition-separated serverless log files."
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/analytics/docs/ordering-domain.md"
     ports: ["in", "out"]
 
   - id: "raw-telemetry-object"
     type: "table"
     name: "File: telemetry_raw.csv"
     description: "CSV backups containing timestamped telemetry dumps generated by serverless ingest executors."
-    docs: "/docs/order-db.md"
+    docs: "/topologies/analytics/docs/order-db.md"
     ports: ["in", "out"]
 
   # S3 warehouse folders for Iceberg backing paths
@@ -283,21 +283,21 @@ components:
     type: "folder"
     name: "Folder: /warehouse/analytics_summary/"
     description: "S3 backing path housing parquet data blocks for the analytics summary Iceberg table."
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/analytics/docs/ordering-domain.md"
     ports: ["in", "out"]
 
   - id: "metrics-folder"
     type: "folder"
     name: "Folder: /warehouse/user_metrics/"
     description: "S3 backing path housing parquet data blocks for the user metrics Iceberg table."
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/analytics/docs/ordering-domain.md"
     ports: ["in", "out"]
 
   - id: "reports-folder"
     type: "folder"
     name: "Folder: /warehouse/billing_reports/"
     description: "S3 backing path housing parquet data blocks for the billing reports Iceberg table."
-    docs: "/docs/ordering-domain.md"
+    docs: "/topologies/analytics/docs/ordering-domain.md"
     ports: ["in", "out"]
 
   # Three dynamic Apache Iceberg tables
@@ -305,21 +305,21 @@ components:
     type: "table"
     name: "Iceberg Table: analytics_summary_t"
     description: "Table backing hourly rolled-up user and telemetry analytical aggregate metrics."
-    docs: "/docs/order-db.md"
+    docs: "/topologies/analytics/docs/order-db.md"
     ports: ["in"]
 
   - id: "user-metrics-table"
     type: "table"
     name: "Iceberg Table: user_metrics_t"
     description: "Table power-tracking granular client telemetry behaviors and page interaction triggers."
-    docs: "/docs/order-db.md"
+    docs: "/topologies/analytics/docs/order-db.md"
     ports: ["in"]
 
   - id: "billing-report-table"
     type: "table"
     name: "Iceberg Table: billing_reports_t"
     description: "Table cataloging financial payment audit reports mapped over Stripe checkouts."
-    docs: "/docs/order-db.md"
+    docs: "/topologies/analytics/docs/order-db.md"
     ports: ["in"]
 
   # MQ Connector
@@ -327,7 +327,7 @@ components:
     type: "connector"
     name: "ActiveMQ Sink Connector"
     description: "Active MQ connector bridging enriched analytical event topics out to downstream client brokers."
-    docs: "/docs/payment-gateway.md"
+    docs: "/topologies/analytics/docs/payment-gateway.md"
     ports: ["in", "out"]
 
   # OpenSearch Server
@@ -335,7 +335,7 @@ components:
     type: "opensearch"
     name: "OpenSearch Cluster (${opensearch_host})"
     description: "Dynamic indexing search cluster used to power BI dashboard queries."
-    docs: "/docs/order-api.md"
+    docs: "/topologies/analytics/docs/order-api.md"
     ports: ["in"]
 
 edges:
