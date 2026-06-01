@@ -80,10 +80,9 @@ import { IconComponent } from '../icon/icon.component';
           }
         </div>
       } @else {
-        <!-- Content / Description for Leaf Components -->
         <div class="flex-1 px-4 py-3 flex flex-col justify-between select-none">
-          <span class="text-[11px] text-slate-400 leading-normal font-sans line-clamp-2">
-            {{ node().type | uppercase }} Component node connected via port interfaces. Click to view documentation.
+          <span class="text-[11px] text-slate-400 leading-normal font-sans line-clamp-2" [title]="node().description || ''">
+            {{ node().description || (node().type | uppercase) + ' Component node connected via port interfaces. Click to view documentation.' }}
           </span>
         </div>
       }

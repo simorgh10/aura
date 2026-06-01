@@ -32,6 +32,7 @@ export interface ComponentNodeConfig {
   type: string;
   name: string;
   docs?: string;
+  description?: string;
   links?: Array<{ type: string; url: string }>;
   ports?: string[];
   css?: Record<string, string>;
@@ -61,6 +62,7 @@ export interface UINode {
   type: string;
   name: string;
   docs?: string;
+  description?: string;
   links?: Array<{ type: string; url: string }>;
   ports: string[];
   css?: Record<string, string>;

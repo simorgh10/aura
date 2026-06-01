@@ -123,6 +123,7 @@ export const TopologyStore = signalStore(
           id: comp.id,
           type: comp.type,
           name: comp.name,
+          description: comp.description,
           docs: comp.docs,
           links: comp.links,
           ports: comp.ports || ['in', 'out'],
