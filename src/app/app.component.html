@@ -18,7 +18,7 @@
 
     <!-- Active environment variables badge display (Only visible in Leaf View) -->
     @if (store.activeProfile() && isLeafView()) {
-      <div class="hidden md:flex items-center gap-2 select-none">
+      <!-- <div class="hidden md:flex items-center gap-2 select-none">
         <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
           Active Environment Specs:
         </div>
@@ -30,7 +30,7 @@
           <span class="text-emerald-400 font-bold">DB Host:</span>
           <span>{{ store.activeProfile()?.props?.['db_host'] || 'external-gateway' }}</span>
         </div>
-      </div>
+      </div> -->
     }
 
     <!-- External Version Badge -->
